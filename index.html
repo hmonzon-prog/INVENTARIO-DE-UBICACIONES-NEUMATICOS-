@@ -1,396 +1,152 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta
- charset="UTF-8">
-<meta name="viewport" conte
-nt="width=device-width, initial-scale=1.0">
-<
-title>Ocupacion Stock OB</title>
-<script src=
-"https://cdn.jsdelivr.net/npm/chart.js"></scr
-ipt>
-<script src="https://cdn.jsdelivr.net/np
-m/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocupacion Stock OB</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore-compat.js"></script>
->
 <style>
-* { margin: 0; padding: 0; box-sizi
-ng: border-box; }
-body { font-family: 'Segoe 
-UI', sans-serif; background: #f5f7fa; color: 
-#2c3e50; padding: 20px; }
-.header { backgroun
-d: linear-gradient(135deg, #e0f2f1, #b2dfdb);
- padding: 20px 30px; border-bottom: 3px solid
- #00796b; border-radius: 12px; margin-bottom:
- 25px; }
-.header h1 { font-size: 22px; color:
- #00796b; }
-.header .sub { color: #5f6368; fo
-nt-size: 13px; margin-top: 4px; }
-.upload-bar
- { display: flex; align-items: center; gap: 1
-2px; flex-wrap: wrap; margin-bottom: 20px; ba
-ckground: #fff; border-radius: 10px; padding:
- 12px 18px; box-shadow: 0 1px 3px rgba(0,0,0,
-0.08); }
-.upload-bar label { font-weight: 600
-; font-size: 13px; color: #37474f; }
-.upload-
-bar .btn { background: #00796b; color: #fff; 
-border: none; padding: 8px 18px; border-radiu
-s: 6px; cursor: pointer; font-size: 13px; fon
-t-weight: 600; transition: all .2s; }
-.upload
--bar .btn:hover { background: #00695c; }
-.upl
-oad-bar .btn:disabled { background: #bdbdbd; 
-cursor: not-allowed; }
-.upload-bar .status { 
-font-size: 12px; color: #5f6368; }
-.upload-ba
-r .status.ok { color: #00796b; }
-.upload-bar 
-.status.err { color: #c62828; }
-.kpi-row { di
-splay: grid; grid-template-columns: repeat(au
-to-fit, minmax(150px, 1fr)); gap: 12px; margi
-n-bottom: 20px; }
-.kpi-card { background: #ff
-f; border-radius: 10px; padding: 18px; border
--left: 4px solid #1a73e8; box-shadow: 0 1px 3
-px rgba(0,0,0,0.08); }
-.kpi-card.green { bord
-er-left-color: #0f9d58; }
-.kpi-card.blue { bo
-rder-left-color: #1a73e8; }
-.kpi-card.purple 
-{ border-left-color: #7b1fa2; }
-.kpi-card.ora
-nge { border-left-color: #f9a825; }
-.kpi-card
-.teal { border-left-color: #00796b; }
-.kpi-ca
-rd.cyan { border-left-color: #00acc1; }
-.kpi-
-card .label { font-size: 10px; color: #5f6368
-; text-transform: uppercase; letter-spacing: 
-1px; margin-bottom: 6px; }
-.kpi-card .value {
- font-size: 28px; font-weight: 700; color: #2
-02124; }
-.kpi-card .sub { font-size: 11px; co
-lor: #5f6368; margin-top: 4px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50; padding: 20px; }
+.header { background: linear-gradient(135deg, #e0f2f1, #b2dfdb); padding: 20px 30px; border-bottom: 3px solid #00796b; border-radius: 12px; margin-bottom: 25px; }
+.header h1 { font-size: 22px; color: #00796b; }
+.header .sub { color: #5f6368; font-size: 13px; margin-top: 4px; }
+.upload-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; background: #fff; border-radius: 10px; padding: 12px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.upload-bar label { font-weight: 600; font-size: 13px; color: #37474f; }
+.upload-bar .btn { background: #00796b; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .2s; }
+.upload-bar .btn:hover { background: #00695c; }
+.upload-bar .btn:disabled { background: #bdbdbd; cursor: not-allowed; }
+.upload-bar .status { font-size: 12px; color: #5f6368; }
+.upload-bar .status.ok { color: #00796b; }
+.upload-bar .status.err { color: #c62828; }
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 10px; padding: 18px; border-left: 4px solid #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.kpi-card.green { border-left-color: #0f9d58; }
+.kpi-card.blue { border-left-color: #1a73e8; }
+.kpi-card.purple { border-left-color: #7b1fa2; }
+.kpi-card.orange { border-left-color: #f9a825; }
+.kpi-card.teal { border-left-color: #00796b; }
+.kpi-card.cyan { border-left-color: #00acc1; }
+.kpi-card .label { font-size: 10px; color: #5f6368; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.kpi-card .value { font-size: 28px; font-weight: 700; color: #202124; }
+.kpi-card .sub { font-size: 11px; color: #5f6368; margin-top: 4px; }
 
-.view-toggl
-e { display: flex; gap: 0; margin-bottom: 16p
-x; background: #e8eaed; border-radius: 8px; o
-verflow: hidden; width: fit-content; }
-.view-
-toggle button { border: none; padding: 8px 20
-px; font-size: 12px; font-weight: 600; cursor
-: pointer; background: transparent; color: #5
-f6368; transition: all .2s; }
-.view-toggle bu
-tton.active { background: #00796b; color: #ff
-f; border-radius: 8px; }
+.view-toggle { display: flex; gap: 0; margin-bottom: 16px; background: #e8eaed; border-radius: 8px; overflow: hidden; width: fit-content; }
+.view-toggle button { border: none; padding: 8px 20px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; color: #5f6368; transition: all .2s; }
+.view-toggle button.active { background: #00796b; color: #fff; border-radius: 8px; }
 
-.charts-row { displ
-ay: grid; grid-template-columns: repeat(auto-
-fit, minmax(400px, 1fr)); gap: 20px; margin-b
-ottom: 25px; }
-.chart-box { background: #fff;
- border-radius: 12px; padding: 20px; box-shad
-ow: 0 1px 3px rgba(0,0,0,0.08); }
-.chart-box 
-h3 { color: #00796b; margin-bottom: 15px; fon
-t-size: 14px; border-bottom: 1px solid #e8eae
-d; padding-bottom: 10px; }
-.chart-container {
- position: relative; height: 300px; }
-.legend
- { display: flex; gap: 16px; margin: 10px 0; 
-font-size: 12px; align-items: center; flex-wr
-ap: wrap; }
-.legend-item { display: flex; ali
-gn-items: center; gap: 4px; }
-.legend-dot { w
-idth: 12px; height: 12px; border-radius: 3px;
- }
-.map-container { background: #fff; border-
-radius: 12px; padding: 20px; box-shadow: 0 1p
-x 3px rgba(0,0,0,0.08); margin-bottom: 25px; 
-overflow-x: auto; }
-.map-grid { display: flex
-; flex-wrap: wrap; gap: 8px; }
-.pasillo-block
- { background: #f8f9fa; border-radius: 6px; b
-order: 1px solid #e8eaed; padding: 6px 8px; m
-in-width: 80px; flex: 0 0 auto; }
-.pasillo-bl
-ock .pb-header { font-size: 11px; font-weight
-: 700; color: #00796b; margin-bottom: 3px; di
-splay: flex; align-items: center; gap: 6px; }
-
-.pb-side { display: flex; gap: 2px; margin: 
-1px 0; align-items: center; }
-.pb-side-label 
-{ font-size: 8px; color: #9aa0a6; width: 10px
-; flex-shrink: 0; font-weight: 700; }
-.rack-d
-ot { width: 18px; height: 18px; border-radius
-: 3px; font-size: 8px; display: flex; align-i
-tems: center; justify-content: center; color:
- #fff; font-weight: 700; cursor: pointer; pos
-ition: relative; }
-.rack-dot .occ-indicator {
- position: absolute; bottom: -2px; right: -2p
-x; width: 7px; height: 7px; border-radius: 50
-%; border: 1px solid #fff; }
-.nave-section { 
-margin-bottom: 16px; }
-.nave-section-title { 
-font-size: 13px; font-weight: 700; margin-bot
-tom: 8px; padding: 4px 10px; border-radius: 4
-px; display: inline-block; }
-.zone-grid { dis
-play: grid; grid-template-columns: repeat(aut
-o-fill, minmax(180px, 1fr)); gap: 10px; margi
-n-bottom: 25px; }
-.zone-card { background: #f
-ff; border-radius: 8px; padding: 14px; border
-: 1px solid #e8eaed; box-shadow: 0 1px 2px rg
-ba(0,0,0,0.04); }
-.zone-card .z-name { font-s
-ize: 12px; color: #00796b; font-weight: 700; 
-margin-bottom: 4px; }
-.zone-card .z-bar { hei
-ght: 6px; background: #e8eaed; border-radius:
- 3px; margin: 6px 0; overflow: hidden; }
-.zon
-e-card .z-fill { height: 100%; border-radius:
- 3px; background: linear-gradient(90deg, #0f9
-d58, #7bc86b); transition: width 1s ease; }
-.
-zone-card .z-fill.blue-grad { background: lin
-ear-gradient(90deg, #00796b, #4db6ac); }
-.zon
-e-card .z-text { font-size: 11px; color: #5f6
-368; }
+.charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px; }
+.chart-box { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.chart-box h3 { color: #00796b; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #e8eaed; padding-bottom: 10px; }
+.chart-container { position: relative; height: 300px; }
+.legend { display: flex; gap: 16px; margin: 10px 0; font-size: 12px; align-items: center; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+.map-container { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 25px; overflow-x: auto; }
+.map-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.pasillo-block { background: #f8f9fa; border-radius: 6px; border: 1px solid #e8eaed; padding: 6px 8px; min-width: 80px; flex: 0 0 auto; }
+.pasillo-block .pb-header { font-size: 11px; font-weight: 700; color: #00796b; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+.pb-side { display: flex; gap: 2px; margin: 1px 0; align-items: center; }
+.pb-side-label { font-size: 8px; color: #9aa0a6; width: 10px; flex-shrink: 0; font-weight: 700; }
+.rack-dot { width: 18px; height: 18px; border-radius: 3px; font-size: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; cursor: pointer; position: relative; }
+.rack-dot .occ-indicator { position: absolute; bottom: -2px; right: -2px; width: 7px; height: 7px; border-radius: 50%; border: 1px solid #fff; }
+.nave-section { margin-bottom: 16px; }
+.nave-section-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 4px 10px; border-radius: 4px; display: inline-block; }
+.zone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 25px; }
+.zone-card { background: #fff; border-radius: 8px; padding: 14px; border: 1px solid #e8eaed; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.zone-card .z-name { font-size: 12px; color: #00796b; font-weight: 700; margin-bottom: 4px; }
+.zone-card .z-bar { height: 6px; background: #e8eaed; border-radius: 3px; margin: 6px 0; overflow: hidden; }
+.zone-card .z-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0f9d58, #7bc86b); transition: width 1s ease; }
+.zone-card .z-fill.blue-grad { background: linear-gradient(90deg, #00796b, #4db6ac); }
+.zone-card .z-text { font-size: 11px; color: #5f6368; }
 </style>
 </head>
 <body>
-<div class="he
-ader">
-<h1>Inventario OB — Ocupación de St
-ock</h1>
+<div class="header">
+<h1>Inventario OB — Ocupación de Stock</h1>
 <div class="sub" id="fecha"></div>
-<
-/div>
-
-<div class="upload-bar">
-<label>Report
-e de Stock:</label>
-<button class="btn" oncli
-ck="document.getElementById('stockFile').clic
-k()">📂 Seleccionar archivo Excel</button>
-
-<input type="file" id="stockFile" accept=".xl
-sx,.xls" style="display:none" onchange="handl
-eFile(event)">
-<span class="status" id="uploa
-dStatus">⚠️ Sin archivo cargado</span>
-<b
-utton class="btn" id="btnLimpiar" onclick="li
-mpiarStock()" disabled style="background:#e53
-935;">✕ Limpiar</button>
-<button class="btn
-" id="btnEjemplo" onclick="cargarEjemplo()" s
-tyle="background:#1565c0;">🔬 Cargar ejempl
-o</button>
 </div>
 
-<div class="kpi-row" id="k
-piRow"></div>
+<div class="upload-bar">
+<label>Reporte de Stock:</label>
+<button class="btn" onclick="document.getElementById('stockFile').click()">📂 Seleccionar archivo Excel</button>
+<input type="file" id="stockFile" accept=".xlsx,.xls" style="display:none" onchange="handleFile(event)">
+<span class="status" id="uploadStatus">⚠️ Sin archivo cargado</span>
+<button class="btn" id="btnLimpiar" onclick="limpiarStock()" disabled style="background:#e53935;">✕ Limpiar</button>
+<button class="btn" id="btnEjemplo" onclick="cargarEjemplo()" style="background:#1565c0;">🔬 Cargar ejemplo</button>
+</div>
 
-<div class="view-toggle" id="v
-iewToggle">
-<button class="active" data-view=
-"inv" onclick="setView('inv')">✅ Progreso I
-nventario</button>
-<button data-view="occ" on
-click="setView('occ')">📦 Ocupación Stock<
-/button>
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="view-toggle" id="viewToggle">
+<button class="active" data-view="inv" onclick="setView('inv')">✅ Progreso Inventario</button>
+<button data-view="occ" onclick="setView('occ')">📦 Ocupación Stock</button>
 </div>
 
 <div class="map-container">
-
-<h3 style="color:#00796b;font-size:14px;borde
-r-bottom:1px solid #e8eaed;padding-bottom:10p
-x;margin-bottom:12px;">Mapa del Depósito</h3
->
+<h3 style="color:#00796b;font-size:14px;border-bottom:1px solid #e8eaed;padding-bottom:10px;margin-bottom:12px;">Mapa del Depósito</h3>
 <div class="legend" id="mapLegend"></div>
-<
-div id="mapaDeposito"></div>
+<div id="mapaDeposito"></div>
 </div>
 
-<div cla
-ss="charts-row">
-<div class="chart-box"><h3 i
-d="chartGenTitle">Progreso General</h3><div c
-lass="chart-container"><canvas id="chartGener
-al"></canvas></div></div>
-<div class="chart-b
-ox"><h3 id="chartZonasTitle">Avance por Zona<
-/h3><div class="chart-container"><canvas id="
-chartZonas"></canvas></div></div>
+<div class="charts-row">
+<div class="chart-box"><h3 id="chartGenTitle">Progreso General</h3><div class="chart-container"><canvas id="chartGeneral"></canvas></div></div>
+<div class="chart-box"><h3 id="chartZonasTitle">Avance por Zona</h3><div class="chart-container"><canvas id="chartZonas"></canvas></div></div>
 </div>
 
-<di
-v class="charts-row">
-<div class="chart-box">
-<h3 id="chartBarTitle">Completado vs Restante
-</h3><div class="chart-container"><canvas id=
-"chartBar"></canvas></div></div>
-<div class="
-chart-box"><h3 id="chartRankTitle">Ranking po
-r Zona</h3><div class="chart-container"><canv
-as id="chartRanking"></canvas></div></div>
-</
-div>
+<div class="charts-row">
+<div class="chart-box"><h3 id="chartBarTitle">Completado vs Restante</h3><div class="chart-container"><canvas id="chartBar"></canvas></div></div>
+<div class="chart-box"><h3 id="chartRankTitle">Ranking por Zona</h3><div class="chart-container"><canvas id="chartRanking"></canvas></div></div>
+</div>
 
-<div style="display:grid;grid-template-
-columns:1fr 1fr;gap:20px;margin-bottom:25px;"
->
-<div class="chart-box"><h3 id="resumenTitle
-">Resumen General</h3><div id="resumenTable" 
-style="font-size:13px;"></div></div>
-<div cla
-ss="chart-box"><h3 id="detalleTitle">Detalle 
-por Zona</h3>
-<div style="max-height:360px;ov
-erflow-y:auto;">
-<table style="width:100%;bor
-der-collapse:collapse;font-size:12px;" id="ta
-blaZonas">
-<thead><tr style="background:#e0f2
-f1;"><th style="text-align:left;padding:8px;c
-olor:#00796b;">Zona</th><th style="text-align
-:center;padding:8px;color:#00796b;">Total</th
-><th style="text-align:center;padding:8px;col
-or:#00796b;">Hecho</th><th style="text-align:
-center;padding:8px;color:#00796b;">Pend</th><
-th style="text-align:right;padding:8px;color:
-#00796b;">%</th></tr></thead>
-<tbody id="tabl
-aBody"></tbody>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:25px;">
+<div class="chart-box"><h3 id="resumenTitle">Resumen General</h3><div id="resumenTable" style="font-size:13px;"></div></div>
+<div class="chart-box"><h3 id="detalleTitle">Detalle por Zona</h3>
+<div style="max-height:360px;overflow-y:auto;">
+<table style="width:100%;border-collapse:collapse;font-size:12px;" id="tablaZonas">
+<thead><tr style="background:#e0f2f1;"><th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Hecho</th><th style="text-align:center;padding:8px;color:#00796b;">Pend</th><th style="text-align:right;padding:8px;color:#00796b;">%</th></tr></thead>
+<tbody id="tablaBody"></tbody>
 </table></div></div></div>
 
-<
-h3 style="color:#00796b;font-size:14px;margin
--bottom:12px;" id="zoneGridTitle">Detalle por
- Zona (Tarjetas)</h3>
-<div class="zone-grid" 
-id="zoneGrid"></div>
+<h3 style="color:#00796b;font-size:14px;margin-bottom:12px;" id="zoneGridTitle">Detalle por Zona (Tarjetas)</h3>
+<div class="zone-grid" id="zoneGrid"></div>
 
 <script>
-const zonas = 
-[
-{name:'N1-A', total:6, inv:1},{name:'N1-B',
- total:12, inv:0},{name:'N1-C', total:12, inv
-:0},
-{name:'N1-D', total:7, inv:0},{name:'N1-
-E', total:12, inv:0},{name:'N2-A', total:16, 
-inv:1},
-{name:'N2-B', total:16, inv:3},{name:
-'N2-C', total:16, inv:4},{name:'N2-D', total:
-17, inv:0},
-{name:'N2-E', total:16, inv:2},{n
-ame:'N2-F', total:7, inv:4},{name:'N2-G', tot
-al:16, inv:14},
-{name:'N2-H', total:16, inv:8
-},{name:'N2-I', total:16, inv:2},{name:'N2-J'
-, total:16, inv:2},
-{name:'N2-M', total:5, in
-v:5}
+const zonas = [
+{name:'N1-A', total:6, inv:1},{name:'N1-B', total:12, inv:0},{name:'N1-C', total:12, inv:0},
+{name:'N1-D', total:7, inv:0},{name:'N1-E', total:12, inv:0},{name:'N2-A', total:16, inv:1},
+{name:'N2-B', total:16, inv:3},{name:'N2-C', total:16, inv:4},{name:'N2-D', total:17, inv:0},
+{name:'N2-E', total:16, inv:2},{name:'N2-F', total:7, inv:4},{name:'N2-G', total:16, inv:14},
+{name:'N2-H', total:16, inv:8},{name:'N2-I', total:16, inv:2},{name:'N2-J', total:16, inv:2},
+{name:'N2-M', total:5, inv:5}
 ];
 
 const invData = {
-'N1-A02':0,'N1-A04
-':0,'N1-A06':0,'N1-A08':0,'N1-A10':1,'N1-A12'
-:0,
-'N1-B01':0,'N1-B02':0,'N1-B03':0,'N1-B04'
-:0,'N1-B05':0,'N1-B06':0,'N1-B07':0,'N1-B08':
-0,'N1-B09':0,'N1-B10':0,'N1-B11':0,'N1-B12':0
-,
-'N1-C01':0,'N1-C02':0,'N1-C03':0,'N1-C04':0
-,'N1-C05':0,'N1-C06':0,'N1-C07':0,'N1-C08':0,
-'N1-C09':0,'N1-C10':0,'N1-C11':0,'N1-C12':0,
-
-'N1-D01':0,'N1-D03':0,'N1-D05':0,'N1-D07':0,'
-N1-D09':0,'N1-D11':0,'N1-D13':0,
-'N1-E01':0,'
-N1-E02':0,'N1-E03':0,'N1-E04':0,'N1-E05':0,'N
-1-E06':0,'N1-E07':0,'N1-E08':0,'N1-E09':0,'N1
--E10':0,'N1-E11':0,'N1-E12':0,
-'N2-A01':0,'N2
--A02':0,'N2-A03':0,'N2-A04':0,'N2-A05':0,'N2-
-A06':0,'N2-A07':0,'N2-A08':0,'N2-A09':1,'N2-A
-10':0,'N2-A11':0,'N2-A12':0,'N2-A13':0,'N2-A1
-4':0,'N2-A15':0,'N2-A16':0,
-'N2-B01':0,'N2-B0
-2':0,'N2-B03':0,'N2-B04':0,'N2-B05':0,'N2-B06
-':0,'N2-B07':0,'N2-B08':0,'N2-B09':0,'N2-B10'
-:0,'N2-B11':0,'N2-B12':1,'N2-B13':0,'N2-B14':
-1,'N2-B15':0,'N2-B16':1,
-'N2-C01':0,'N2-C02':
-0,'N2-C03':0,'N2-C04':0,'N2-C05':1,'N2-C06':0
-,'N2-C07':0,'N2-C08':0,'N2-C09':0,'N2-C10':0,
-'N2-C11':1,'N2-C12':0,'N2-C13':1,'N2-C14':0,'
-N2-C15':1,'N2-C16':0,
-'N2-D01':0,'N2-D02':0,'
-N2-D03':0,'N2-D04':0,'N2-D05':0,'N2-D06':0,'N
-2-D07':0,'N2-D08':0,'N2-D09':0,'N2-D10':0,'N2
--D11':0,'N2-D12':0,'N2-D13':0,'N2-D14':0,'N2-
-D15':0,'N2-D16':0,'N2-D17':0,
-'N2-E01':1,'N2-
-E02':0,'N2-E03':0,'N2-E04':0,'N2-E05':0,'N2-E
-06':0,'N2-E07':0,'N2-E08':0,'N2-E09':1,'N2-E1
-0':0,'N2-E11':0,'N2-E12':0,'N2-E13':0,'N2-E14
-':0,'N2-E15':0,'N2-E16':0,
-'N2-F02':1,'N2-F04
-':1,'N2-F06':0,'N2-F08':0,'N2-F12':1,'N2-F14'
-:1,'N2-F16':0,
-'N2-G01':1,'N2-G02':1,'N2-G03'
-:1,'N2-G04':1,'N2-G05':1,'N2-G06':1,'N2-G07':
-1,'N2-G08':1,'N2-G09':1,'N2-G10':1,'N2-G11':1
-,'N2-G12':1,'N2-G13':1,'N2-G14':1,'N2-G15':0,
-'N2-G16':0,
-'N2-H01':1,'N2-H02':1,'N2-H03':1,
-'N2-H04':0,'N2-H05':1,'N2-H06':0,'N2-H07':1,'
-N2-H08':0,'N2-H09':0,'N2-H10':0,'N2-H11':1,'N
-2-H12':0,'N2-H13':1,'N2-H14':0,'N2-H15':1,'N2
--H16':0,
-'N2-I01':0,'N2-I02':1,'N2-I03':0,'N2
--I04':0,'N2-I05':0,'N2-I06':1,'N2-I07':0,'N2-
-I08':0,'N2-I09':0,'N2-I10':0,'N2-I11':0,'N2-I
-12':0,'N2-I13':0,'N2-I14':0,'N2-I15':0,'N2-I1
-6':0,
-'N2-J01':0,'N2-J02':0,'N2-J03':0,'N2-J0
-4':0,'N2-J05':1,'N2-J06':0,'N2-J07':1,'N2-J08
-':0,'N2-J09':0,'N2-J10':0,'N2-J11':0,'N2-J12'
-:0,'N2-J13':0,'N2-J14':0,'N2-J15':0,'N2-J16':
-0,
-'N2-M01':1,'N2-M02':1,'N2-M03':1,'N2-M04':
-1,'N2-M05':1
+'N1-A02':0,'N1-A04':0,'N1-A06':0,'N1-A08':0,'N1-A10':1,'N1-A12':0,
+'N1-B01':0,'N1-B02':0,'N1-B03':0,'N1-B04':0,'N1-B05':0,'N1-B06':0,'N1-B07':0,'N1-B08':0,'N1-B09':0,'N1-B10':0,'N1-B11':0,'N1-B12':0,
+'N1-C01':0,'N1-C02':0,'N1-C03':0,'N1-C04':0,'N1-C05':0,'N1-C06':0,'N1-C07':0,'N1-C08':0,'N1-C09':0,'N1-C10':0,'N1-C11':0,'N1-C12':0,
+'N1-D01':0,'N1-D03':0,'N1-D05':0,'N1-D07':0,'N1-D09':0,'N1-D11':0,'N1-D13':0,
+'N1-E01':0,'N1-E02':0,'N1-E03':0,'N1-E04':0,'N1-E05':0,'N1-E06':0,'N1-E07':0,'N1-E08':0,'N1-E09':0,'N1-E10':0,'N1-E11':0,'N1-E12':0,
+'N2-A01':0,'N2-A02':0,'N2-A03':0,'N2-A04':0,'N2-A05':0,'N2-A06':0,'N2-A07':0,'N2-A08':0,'N2-A09':1,'N2-A10':0,'N2-A11':0,'N2-A12':0,'N2-A13':0,'N2-A14':0,'N2-A15':0,'N2-A16':0,
+'N2-B01':0,'N2-B02':0,'N2-B03':0,'N2-B04':0,'N2-B05':0,'N2-B06':0,'N2-B07':0,'N2-B08':0,'N2-B09':0,'N2-B10':0,'N2-B11':0,'N2-B12':1,'N2-B13':0,'N2-B14':1,'N2-B15':0,'N2-B16':1,
+'N2-C01':0,'N2-C02':0,'N2-C03':0,'N2-C04':0,'N2-C05':1,'N2-C06':0,'N2-C07':0,'N2-C08':0,'N2-C09':0,'N2-C10':0,'N2-C11':1,'N2-C12':0,'N2-C13':1,'N2-C14':0,'N2-C15':1,'N2-C16':0,
+'N2-D01':0,'N2-D02':0,'N2-D03':0,'N2-D04':0,'N2-D05':0,'N2-D06':0,'N2-D07':0,'N2-D08':0,'N2-D09':0,'N2-D10':0,'N2-D11':0,'N2-D12':0,'N2-D13':0,'N2-D14':0,'N2-D15':0,'N2-D16':0,'N2-D17':0,
+'N2-E01':1,'N2-E02':0,'N2-E03':0,'N2-E04':0,'N2-E05':0,'N2-E06':0,'N2-E07':0,'N2-E08':0,'N2-E09':1,'N2-E10':0,'N2-E11':0,'N2-E12':0,'N2-E13':0,'N2-E14':0,'N2-E15':0,'N2-E16':0,
+'N2-F02':1,'N2-F04':1,'N2-F06':0,'N2-F08':0,'N2-F12':1,'N2-F14':1,'N2-F16':0,
+'N2-G01':1,'N2-G02':1,'N2-G03':1,'N2-G04':1,'N2-G05':1,'N2-G06':1,'N2-G07':1,'N2-G08':1,'N2-G09':1,'N2-G10':1,'N2-G11':1,'N2-G12':1,'N2-G13':1,'N2-G14':1,'N2-G15':0,'N2-G16':0,
+'N2-H01':1,'N2-H02':1,'N2-H03':1,'N2-H04':0,'N2-H05':1,'N2-H06':0,'N2-H07':1,'N2-H08':0,'N2-H09':0,'N2-H10':0,'N2-H11':1,'N2-H12':0,'N2-H13':1,'N2-H14':0,'N2-H15':1,'N2-H16':0,
+'N2-I01':0,'N2-I02':1,'N2-I03':0,'N2-I04':0,'N2-I05':0,'N2-I06':1,'N2-I07':0,'N2-I08':0,'N2-I09':0,'N2-I10':0,'N2-I11':0,'N2-I12':0,'N2-I13':0,'N2-I14':0,'N2-I15':0,'N2-I16':0,
+'N2-J01':0,'N2-J02':0,'N2-J03':0,'N2-J04':0,'N2-J05':1,'N2-J06':0,'N2-J07':1,'N2-J08':0,'N2-J09':0,'N2-J10':0,'N2-J11':0,'N2-J12':0,'N2-J13':0,'N2-J14':0,'N2-J15':0,'N2-J16':0,
+'N2-M01':1,'N2-M02':1,'N2-M03':1,'N2-M04':1,'N2-M05':1
 };
 
 let stockData = {};
-let curr
-entView = 'inv';
+let currentView = 'inv';
 let chartGeneral, chartZonas, chartBar, chartRanking;
+
 const firebaseConfig = {
   apiKey: "AIzaSyC8fogrQeHgkC-7k_h0NHE6Lj5-qYRsO64",
   authDomain: "prode-mundial-2026-8ae43.firebaseapp.com",
@@ -404,13 +160,12 @@ const db = firebase.firestore();
 
 function saveData() {
   localStorage.setItem('obInvData', JSON.stringify(invData));
-  const docRef = db.collection('inventario').doc('ubicaciones');
-  docRef.set({ data: invData }, { merge: true }).catch(err => console.error('Firestore write error:', err));
+  db.collection('inventario').doc('ubicaciones').set({ data: invData }, { merge: true })
+    .catch(err => console.error('Firestore write error:', err));
 }
 let unsubscribe = null;
 function startFirestoreListener() {
-  const docRef = db.collection('inventario').doc('ubicaciones');
-  unsubscribe = docRef.onSnapshot((doc) => {
+  unsubscribe = db.collection('inventario').doc('ubicaciones').onSnapshot((doc) => {
     if (doc.exists) {
       const remoteData = doc.data().data;
       if (remoteData) {
@@ -453,1072 +208,465 @@ async function initFromFirestore() {
   refreshAll();
 }
 function toggleLoc(key) {
-  i
-f (!(key in invData)) return;
-  invData[key] 
-= invData[key] === 1 ? 0 : 1;
+  if (!(key in invData)) return;
+  invData[key] = invData[key] === 1 ? 0 : 1;
   saveData();
- 
- refreshAll();
+  refreshAll();
 }
 
-function getStatus(nave, le
-tra, num) {
-  if (letra === 'M') { const n = 
-('0'+num).slice(-2); return invData['N2-M'+n]
- === 1 ? 1 : invData['N2-M'+n] === 0 ? 0 : -1
-; }
-  const key = 'N'+nave+'-'+letra+('0'+num
-).slice(-2);
-  return invData[key] === 1 ? 1 
-: invData[key] === 0 ? 0 : -1;
+function getStatus(nave, letra, num) {
+  if (letra === 'M') { const n = ('0'+num).slice(-2); return invData['N2-M'+n] === 1 ? 1 : invData['N2-M'+n] === 0 ? 0 : -1; }
+  const key = 'N'+nave+'-'+letra+('0'+num).slice(-2);
+  return invData[key] === 1 ? 1 : invData[key] === 0 ? 0 : -1;
 }
-function get
-Nums(nave, letra) {
-  const nums = [], prefix
- = 'N'+nave+'-'+letra;
-  for (const key in in
-vData) if (key.startsWith(prefix)) nums.push(
-parseInt(key.replace(prefix,'')));
-  return n
-ums.sort((a,b)=>a-b);
+function getNums(nave, letra) {
+  const nums = [], prefix = 'N'+nave+'-'+letra;
+  for (const key in invData) if (key.startsWith(prefix)) nums.push(parseInt(key.replace(prefix,'')));
+  return nums.sort((a,b)=>a-b);
 }
-function hasStock(nav
-e, letra, num) {
-  const key = 'N'+nave+'-'+l
-etra+('0'+num).slice(-2);
-  return stockData[
-key] === true;
+function hasStock(nave, letra, num) {
+  const key = 'N'+nave+'-'+letra+('0'+num).slice(-2);
+  return stockData[key] === true;
 }
 
 function setView(v) {
-  cur
-rentView = v;
-  document.querySelectorAll('.v
-iew-toggle button').forEach(b => b.classList.
-toggle('active', b.dataset.view === v));
-  re
-freshAll();
+  currentView = v;
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  refreshAll();
 }
 
 function limpiarStock() {
-  st
-ockData = {};
-  document.getElementById('stoc
-kFile').value = '';
-  document.getElementById
-('uploadStatus').textContent = 'Sin archivo c
-argado';
-  document.getElementById('uploadSta
-tus').className = 'status';
-  document.getEle
-mentById('btnLimpiar').disabled = true;
-  ref
-reshAll();
+  stockData = {};
+  document.getElementById('stockFile').value = '';
+  document.getElementById('uploadStatus').textContent = 'Sin archivo cargado';
+  document.getElementById('uploadStatus').className = 'status';
+  document.getElementById('btnLimpiar').disabled = true;
+  refreshAll();
 }
 
 function normalizarLoc(loc) {
- 
- if (!loc || typeof loc !== 'string') return 
-null;
-  let s = loc.toUpperCase().trim().repl
-ace(/\s+/g, '');
-  s = s.replace(/NAVE/g, 'N'
-).replace(/-/g, '');
-  let m = s.match(/N(\d+
-)([A-Z])(\d+)/);
-  if (!m) m = s.match(/(\d+)
-([A-Z])(\d+)/);
+  if (!loc || typeof loc !== 'string') return null;
+  let s = loc.toUpperCase().trim().replace(/\s+/g, '');
+  s = s.replace(/NAVE/g, 'N').replace(/-/g, '');
+  let m = s.match(/N(\d+)([A-Z])(\d+)/);
+  if (!m) m = s.match(/(\d+)([A-Z])(\d+)/);
   if (m) {
-    const nave = p
-arseInt(m[1]), letra = m[2], num = parseInt(m
-[3]);
-    if (nave >= 1 && nave <= 2 && letra
-.length === 1 && num >= 1 && num <= 99) {
-   
-   const key = 'N'+nave+'-'+letra+('0'+num).s
-lice(-2);
-      if (key in invData) return ke
-y;
+    const nave = parseInt(m[1]), letra = m[2], num = parseInt(m[3]);
+    if (nave >= 1 && nave <= 2 && letra.length === 1 && num >= 1 && num <= 99) {
+      const key = 'N'+nave+'-'+letra+('0'+num).slice(-2);
+      if (key in invData) return key;
     }
   }
   return null;
 }
 
-function handl
-eFile(event) {
-  const file = event.target.fi
-les[0];
+function handleFile(event) {
+  const file = event.target.files[0];
   if (!file) return;
-  const st = doc
-ument.getElementById('uploadStatus');
-  st.te
-xtContent = 'Leyendo archivo...';
-  st.classN
-ame = 'status';
-  document.getElementById('bt
-nLimpiar').disabled = true;
+  const st = document.getElementById('uploadStatus');
+  st.textContent = 'Leyendo archivo...';
+  st.className = 'status';
+  document.getElementById('btnLimpiar').disabled = true;
 
-  const reader =
- new FileReader();
-  reader.onload = function
-(e) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
     try {
-      const data = new Uint8A
-rray(e.target.result);
-      const workbook =
- XLSX.read(data, {type:'array'});
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type:'array'});
 
-      cons
-t stockMap = {};
-      let totalRowCount = 0,
- matchedCount = 0;
-      const sheetsInfo = [
-];
+      const stockMap = {};
+      let totalRowCount = 0, matchedCount = 0;
+      const sheetsInfo = [];
 
-      workbook.SheetNames.forEach(sname =
-> {
-        const ws = workbook.Sheets[sname]
-;
-        const aoa = XLSX.utils.sheet_to_jso
-n(ws, {header:1, defval:''});
-        if (aoa
-.length < 2) return;
+      workbook.SheetNames.forEach(sname => {
+        const ws = workbook.Sheets[sname];
+        const aoa = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        if (aoa.length < 2) return;
 
-        let headerRowId
-x = -1, colLoc = -1, colQty = -1;
+        let headerRowIdx = -1, colLoc = -1, colQty = -1;
 
-        fo
-r (let i = 0; i < Math.min(aoa.length, 30); i
-++) {
+        for (let i = 0; i < Math.min(aoa.length, 30); i++) {
           const row = aoa[i];
-         
- const rowStr = row.map(String);
-          le
-t foundLoc = false, foundQty = false;
-       
-   let locIdx = -1, qtyIdx = -1;
+          const rowStr = row.map(String);
+          let foundLoc = false, foundQty = false;
+          let locIdx = -1, qtyIdx = -1;
 
-          r
-owStr.forEach((cell, ci) => {
-            con
-st cl = cell.toLowerCase().normalize('NFD').r
-eplace(/[\u0300-\u036f]/g, '').trim();
-      
-      if (!foundLoc && (cl.includes('ubicacio
-n') || (cl.includes('ubic') && !cl.includes('
-fecha')))) { locIdx = ci; foundLoc = true; }
-
-            if (!foundQty && (cl.includes('ca
-ntidad') || cl.includes('qty') || (cl.include
-s('stock') && !cl.includes('sku')) || cl.incl
-udes('existencia'))) { qtyIdx = ci; foundQty 
-= true; }
+          rowStr.forEach((cell, ci) => {
+            const cl = cell.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+            if (!foundLoc && (cl.includes('ubicacion') || (cl.includes('ubic') && !cl.includes('fecha')))) { locIdx = ci; foundLoc = true; }
+            if (!foundQty && (cl.includes('cantidad') || cl.includes('qty') || (cl.includes('stock') && !cl.includes('sku')) || cl.includes('existencia'))) { qtyIdx = ci; foundQty = true; }
           });
 
-          if (foundL
-oc) { headerRowIdx = i; colLoc = locIdx; colQ
-ty = qtyIdx; break; }
+          if (foundLoc) { headerRowIdx = i; colLoc = locIdx; colQty = qtyIdx; break; }
         }
 
-        if (
-headerRowIdx < 0) {
-          for (let i = 0;
- i < Math.min(aoa.length, 50); i++) {
-       
-     const row = aoa[i];
-            for (let
- j = 0; j < row.length; j++) {
-              
-const val = String(row[j]).toUpperCase().trim
-().replace(/[\s-]/g, '');
-              if (/
-^N?[12][A-Z]\d{2,3}$/.test(val)) { headerRowI
-dx = Math.max(0, i - 1); colLoc = j; break; }
-
+        if (headerRowIdx < 0) {
+          for (let i = 0; i < Math.min(aoa.length, 50); i++) {
+            const row = aoa[i];
+            for (let j = 0; j < row.length; j++) {
+              const val = String(row[j]).toUpperCase().trim().replace(/[\s-]/g, '');
+              if (/^N?[12][A-Z]\d{2,3}$/.test(val)) { headerRowIdx = Math.max(0, i - 1); colLoc = j; break; }
             }
-            if (headerRowIdx >
-= 0 && colLoc >= 0) break;
+            if (headerRowIdx >= 0 && colLoc >= 0) break;
           }
-      
-    if (headerRowIdx < 0) { headerRowIdx = 0;
- colLoc = 0; }
+          if (headerRowIdx < 0) { headerRowIdx = 0; colLoc = 0; }
         }
 
-        let sheetMa
-tched = 0;
-        for (let i = headerRowIdx 
-+ 1; i < aoa.length; i++) {
-          const r
-ow = aoa[i];
-          const rawLoc = String(
-row[colLoc] || '').trim();
-          if (!raw
-Loc) continue;
+        let sheetMatched = 0;
+        for (let i = headerRowIdx + 1; i < aoa.length; i++) {
+          const row = aoa[i];
+          const rawLoc = String(row[colLoc] || '').trim();
+          if (!rawLoc) continue;
 
-          const norm = normal
-izarLoc(rawLoc);
-          if (!norm) continu
-e;
+          const norm = normalizarLoc(rawLoc);
+          if (!norm) continue;
 
           totalRowCount++;
-          let 
-qty = 0;
-          if (colQty >= 0 && colQty 
-< row.length) qty = parseFloat(String(row[col
-Qty]).replace(',', '.')) || 0;
-          else
- qty = 1;
+          let qty = 0;
+          if (colQty >= 0 && colQty < row.length) qty = parseFloat(String(row[colQty]).replace(',', '.')) || 0;
+          else qty = 1;
 
-          if (qty > 0) { stockMap[
-norm] = true; matchedCount++; sheetMatched++;
- }
+          if (qty > 0) { stockMap[norm] = true; matchedCount++; sheetMatched++; }
         }
 
-        if (sheetMatched > 0) s
-heetsInfo.push(sname + ': ' + sheetMatched + 
-' locs');
+        if (sheetMatched > 0) sheetsInfo.push(sname + ': ' + sheetMatched + ' locs');
       });
 
-      stockData = stockM
-ap;
-      if (Object.keys(stockData).length >
- 0) {
-        st.textContent = '✓ ' + Objec
-t.keys(stockData).length + ' ubicaciones ocup
-adas. ' + sheetsInfo.join(' | ');
-        st.
-className = 'status ok';
+      stockData = stockMap;
+      if (Object.keys(stockData).length > 0) {
+        st.textContent = '✓ ' + Object.keys(stockData).length + ' ubicaciones ocupadas. ' + sheetsInfo.join(' | ');
+        st.className = 'status ok';
       } else {
-     
-   st.textContent = totalRowCount > 0
-       
-   ? 'Se leyeron ' + totalRowCount + ' filas 
-pero ninguna ubicación coincide con el layou
-t. Revisá el formato (ej: N2-G14, N1-A02).'
-
-          : 'No se encontraron datos de ubica
-ciones. Verificá que el Excel tenga una colu
-mna "Ubicación".';
-        st.className = 's
-tatus err';
+        st.textContent = totalRowCount > 0
+          ? 'Se leyeron ' + totalRowCount + ' filas pero ninguna ubicación coincide con el layout. Revisá el formato (ej: N2-G14, N1-A02).'
+          : 'No se encontraron datos de ubicaciones. Verificá que el Excel tenga una columna "Ubicación".';
+        st.className = 'status err';
       }
-      document.getElement
-ById('btnLimpiar').disabled = false;
-      re
-freshAll();
+      document.getElementById('btnLimpiar').disabled = false;
+      refreshAll();
 
     } catch(err) {
-      st.text
-Content = 'Error al leer: ' + err.message + '
- (revisá la consola F12)';
-      st.classNam
-e = 'status err';
+      st.textContent = 'Error al leer: ' + err.message + ' (revisá la consola F12)';
+      st.className = 'status err';
       console.error(err);
- 
-   }
+    }
   };
   reader.readAsArrayBuffer(file);
 }
 
-
 function cargarEjemplo() {
-  const sampleLo
-cs = ['N2-C11','N2-C13','N2-C15','N2-E09','N2
--F02','N2-F14','N2-C05','N2-E01','N2-F04','N2
--F12','N2-B12','N2-B14','N2-B16','N2-H01','N2
--H03','N2-H05','N2-H07','N2-H09','N2-H11','N2
--H13','N2-H15','N2-G01','N2-G02','N2-G03','N2
--G04','N2-G05','N2-G06','N2-G07','N2-G08','N2
--G09','N2-G10','N2-G11','N2-G12','N2-G13','N2
--G14','N1-A10','N2-A09','N2-J05','N2-J07','N2
--M01','N2-M02','N2-M03','N2-M04','N2-M05','N2
--I02','N2-I06'];
+  const sampleLocs = ['N2-C11','N2-C13','N2-C15','N2-E09','N2-F02','N2-F14','N2-C05','N2-E01','N2-F04','N2-F12','N2-B12','N2-B14','N2-B16','N2-H01','N2-H03','N2-H05','N2-H07','N2-H09','N2-H11','N2-H13','N2-H15','N2-G01','N2-G02','N2-G03','N2-G04','N2-G05','N2-G06','N2-G07','N2-G08','N2-G09','N2-G10','N2-G11','N2-G12','N2-G13','N2-G14','N1-A10','N2-A09','N2-J05','N2-J07','N2-M01','N2-M02','N2-M03','N2-M04','N2-M05','N2-I02','N2-I06'];
   stockData = {};
-  sampleLo
-cs.forEach(l => { stockData[l] = true; });
-  
-const st = document.getElementById('uploadSta
-tus');
-  st.textContent = '✓ Ejemplo cargad
-o: ' + sampleLocs.length + ' ubicaciones ocup
-adas (simulado)';
-  st.className = 'status ok
-';
-  document.getElementById('btnLimpiar').di
-sabled = false;
+  sampleLocs.forEach(l => { stockData[l] = true; });
+  const st = document.getElementById('uploadStatus');
+  st.textContent = '✓ Ejemplo cargado: ' + sampleLocs.length + ' ubicaciones ocupadas (simulado)';
+  st.className = 'status ok';
+  document.getElementById('btnLimpiar').disabled = false;
   refreshAll();
 }
 
-function r
-ecalcZonas() {
+function recalcZonas() {
   for (const z of zonas) {
-   
- z.inv = 0;
-    for (const k in invData) if (
-k.startsWith(z.name) && invData[k] === 1) z.i
-nv++;
+    z.inv = 0;
+    for (const k in invData) if (k.startsWith(z.name) && invData[k] === 1) z.inv++;
   }
 }
 function calcOcupacion() {
-  for 
-(const z of zonas) {
+  for (const z of zonas) {
     z.occ = 0;
-    for (
-const k in invData) if (k.startsWith(z.name) 
-&& stockData[k] === true) z.occ++;
+    for (const k in invData) if (k.startsWith(z.name) && stockData[k] === true) z.occ++;
   }
 }
 
-fun
-ction renderMapa() {
-  const nav1 = ['A','B',
-'C','D','E'];
-  const nav2 = ['A','B','C','D'
-,'E','F','G','H','I','J','M'];
+function renderMapa() {
+  const nav1 = ['A','B','C','D','E'];
+  const nav2 = ['A','B','C','D','E','F','G','H','I','J','M'];
 
-  function bu
-ildBlock(nave, letra) {
-    const zona = zona
-s.find(z => z.name === 'N'+nave+'-'+letra);
- 
-   if (!zona) return '';
-    const nums = get
-Nums(nave, letra);
-    const isMoto = letra =
-== 'M' && nave === 2;
-    const odds = nums.f
-ilter(n => n%2===1), evens = nums.filter(n =>
- n%2===0);
-    const pctInv = (zona.inv/zona.
-total*100).toFixed(0);
-    const pctOcc = zon
-a.total > 0 ? ((zona.occ||0)/zona.total*100).
-toFixed(0) : 0;
+  function buildBlock(nave, letra) {
+    const zona = zonas.find(z => z.name === 'N'+nave+'-'+letra);
+    if (!zona) return '';
+    const nums = getNums(nave, letra);
+    const isMoto = letra === 'M' && nave === 2;
+    const odds = nums.filter(n => n%2===1), evens = nums.filter(n => n%2===0);
+    const pctInv = (zona.inv/zona.total*100).toFixed(0);
+    const pctOcc = zona.total > 0 ? ((zona.occ||0)/zona.total*100).toFixed(0) : 0;
 
     if (isMoto) {
-      let 
-h = '<div class="pasillo-block" style="min-wi
-dth:140px;"><div class="pb-header"><span>M</s
-pan><span style="font-size:9px;color:#9aa0a6;
-font-weight:400;">Motos</span>';
-      h += '
-<span style="font-size:9px;color:#5f6368;font
--weight:400;margin-left:auto;display:flex;gap
-:4px;"><span title="Inventario">✅'+pctInv+'
-%</span><span title="Ocupacion">📦'+pctOcc+
-'%</span></span></div><div style="display:fle
-x;gap:2px;flex-wrap:wrap;">';
-      nums.forE
-ach(n => {
-        const s = getStatus(nave, 
-letra, n);
-        const occ = hasStock(nave,
- letra, n);
-        const colors = getDotColo
-rs(s, occ);
-        h += '<div class="rack-do
-t" data-loc="N2-M'+('0'+n).slice(-2)+'" oncli
-ck="toggleLoc(this.dataset.loc)" style="backg
-round:'+colors.bg+';color:'+colors.fg+';borde
-r:2px solid '+colors.border+';">'+n+'</div>';
-
+      let h = '<div class="pasillo-block" style="min-width:140px;"><div class="pb-header"><span>M</span><span style="font-size:9px;color:#9aa0a6;font-weight:400;">Motos</span>';
+      h += '<span style="font-size:9px;color:#5f6368;font-weight:400;margin-left:auto;display:flex;gap:4px;"><span title="Inventario">✅'+pctInv+'%</span><span title="Ocupacion">📦'+pctOcc+'%</span></span></div><div style="display:flex;gap:2px;flex-wrap:wrap;">';
+      nums.forEach(n => {
+        const s = getStatus(nave, letra, n);
+        const occ = hasStock(nave, letra, n);
+        const colors = getDotColors(s, occ);
+        h += '<div class="rack-dot" data-loc="N2-M'+('0'+n).slice(-2)+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
       });
       h += '</div></div>';
-      r
-eturn h;
+      return h;
     }
 
-    const sideEven = evens.le
-ngth > 0;
-    const sideOdd = odds.length > 0
-;
-    const correlative = nave === 1 && letra
- === 'E';
+    const sideEven = evens.length > 0;
+    const sideOdd = odds.length > 0;
+    const correlative = nave === 1 && letra === 'E';
 
-    let h = '<div class="pasillo-b
-lock"><div class="pb-header"><span>'+letra+'<
-/span>';
+    let h = '<div class="pasillo-block"><div class="pb-header"><span>'+letra+'</span>';
     if (currentView === 'inv') {
-   
-   h += '<span style="font-size:9px;color:#5f
-6368;font-weight:400;">'+zona.inv+'/'+zona.to
-tal+' ('+pctInv+'%)</span>';
+      h += '<span style="font-size:9px;color:#5f6368;font-weight:400;">'+zona.inv+'/'+zona.total+' ('+pctInv+'%)</span>';
     } else {
-   
-   h += '<span style="font-size:9px;color:#5f
-6368;font-weight:400;">'+(zona.occ||0)+'/'+zo
-na.total+' ocup ('+pctOcc+'%)</span>';
+      h += '<span style="font-size:9px;color:#5f6368;font-weight:400;">'+(zona.occ||0)+'/'+zona.total+' ocup ('+pctOcc+'%)</span>';
     }
+    h += '<span style="font-size:9px;color:#9aa0a6;font-weight:400;margin-left:auto;display:flex;gap:4px;"><span title="Avance inv">✅'+pctInv+'%</span><span title="Ocupacion">📦'+pctOcc+'%</span></span></div>';
 
-    h += '<span style="font-size:9px;color:#9
-aa0a6;font-weight:400;margin-left:auto;displa
-y:flex;gap:4px;"><span title="Avance inv">✅
-'+pctInv+'%</span><span title="Ocupacion">�
-�'+pctOcc+'%</span></span></div>';
-
-    funct
-ion renderDots(arr) {
+    function renderDots(arr) {
       let out = '';
-   
-   arr.forEach(n => {
-        const s = getSt
-atus(nave, letra, n);
-        const occ = has
-Stock(nave, letra, n);
-        const loc = 'N
-'+nave+'-'+letra+('0'+n).slice(-2);
-        c
-onst colors = getDotColors(s, occ);
-        o
-ut += '<div class="rack-dot" data-loc="'+loc+
-'" onclick="toggleLoc(this.dataset.loc)" styl
-e="background:'+colors.bg+';color:'+colors.fg
-+';border:2px solid '+colors.border+';">'+n+'
-</div>';
+      arr.forEach(n => {
+        const s = getStatus(nave, letra, n);
+        const occ = hasStock(nave, letra, n);
+        const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
+        const colors = getDotColors(s, occ);
+        out += '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
       });
       return out;
     }
 
- 
-   if (correlative) {
-      h += '<div class=
-"pb-side">' + renderDots(nums) + '</div>';
-  
-  } else {
-      if (sideEven) h += '<div cla
-ss="pb-side"><span class="pb-side-label">P</s
-pan>' + renderDots(evens) + '</div>';
-      i
-f (sideOdd) h += '<div class="pb-side"><span 
-class="pb-side-label">I</span>' + renderDots(
-odds) + '</div>';
+    if (correlative) {
+      h += '<div class="pb-side">' + renderDots(nums) + '</div>';
+    } else {
+      if (sideEven) h += '<div class="pb-side"><span class="pb-side-label">P</span>' + renderDots(evens) + '</div>';
+      if (sideOdd) h += '<div class="pb-side"><span class="pb-side-label">I</span>' + renderDots(odds) + '</div>';
     }
     h += '</div>';
-  
-  return h;
+    return h;
   }
 
-  function getDotColors(invS
-tatus, hasStockFlag) {
-    if (currentView ==
-= 'inv') {
-      if (invStatus === 1) return 
-{bg:'#0f9d58', fg:'#fff', border:'#0f9d58'};
-
-      if (invStatus === 0) return {bg:'#ea433
-5', fg:'#fff', border:'#ea4335'};
-      retur
-n {bg:'#cfd8dc', fg:'#78909c', border:'#cfd8d
-c'};
+  function getDotColors(invStatus, hasStockFlag) {
+    if (currentView === 'inv') {
+      if (invStatus === 1) return {bg:'#0f9d58', fg:'#fff', border:'#0f9d58'};
+      if (invStatus === 0) return {bg:'#ea4335', fg:'#fff', border:'#ea4335'};
+      return {bg:'#cfd8dc', fg:'#78909c', border:'#cfd8dc'};
     } else {
-      if (hasStockFlag) ret
-urn {bg:'#1565c0', fg:'#fff', border:'#0d47a1
-'};
-      return {bg:'#eeeeee', fg:'#9e9e9e',
- border:'#e0e0e0'};
+      if (hasStockFlag) return {bg:'#1565c0', fg:'#fff', border:'#0d47a1'};
+      return {bg:'#eeeeee', fg:'#9e9e9e', border:'#e0e0e0'};
     }
   }
 
-  const colorN
-1 = 'background:#e0f2f1;color:#00796b;', colo
-rN2 = 'background:#f3e5f5;color:#7b1fa2;';
-  
-let html = '<div class="nave-section"><div cl
-ass="nave-section-title" style="'+colorN2+'">
-Nave 2</div>';
-  html += '<div class="map-gri
-d" style="margin-bottom:6px;">' + ['F','G','H
-','I','J'].map(l => buildBlock(2, l)).join(''
-) + '</div>';
-  html += '<div class="map-grid
-" style="margin-bottom:6px;">' + ['A','B','C'
-,'D','E'].map(l => buildBlock(2, l)).join('')
- + '</div>';
-  html += '<div class="map-grid"
->' + buildBlock(2, 'M') + '</div></div>';
-  h
-tml += '<div class="nave-section"><div class=
-"nave-section-title" style="'+colorN1+'">Nave
- 1</div><div class="map-grid">';
-  nav1.forEa
-ch(l => { html += buildBlock(1, l); });
-  htm
-l += '</div></div>';
+  const colorN1 = 'background:#e0f2f1;color:#00796b;', colorN2 = 'background:#f3e5f5;color:#7b1fa2;';
+  let html = '<div class="nave-section"><div class="nave-section-title" style="'+colorN2+'">Nave 2</div>';
+  html += '<div class="map-grid" style="margin-bottom:6px;">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '<div class="map-grid" style="margin-bottom:6px;">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '<div class="map-grid">' + buildBlock(2, 'M') + '</div></div>';
+  html += '<div class="nave-section"><div class="nave-section-title" style="'+colorN1+'">Nave 1</div><div class="map-grid">';
+  nav1.forEach(l => { html += buildBlock(1, l); });
+  html += '</div></div>';
 
-  document.getElementBy
-Id('mapaDeposito').innerHTML = html;
+  document.getElementById('mapaDeposito').innerHTML = html;
 
-  const
- legendHtml = currentView === 'inv'
-    ? '<s
-pan class="legend-item"><span class="legend-d
-ot" style="background:#0f9d58;"></span> Inven
-tariado</span><span class="legend-item"><span
- class="legend-dot" style="background:#ea4335
-;"></span> Pendiente</span><span class="legen
-d-item"><span class="legend-dot" style="backg
-round:#cfd8dc;"></span> Vacío</span>'
-    : 
-'<span class="legend-item"><span class="legen
-d-dot" style="background:#1565c0;"></span> Co
-n Stock</span><span class="legend-item"><span
- class="legend-dot" style="background:#eeeeee
-;border:1px solid #e0e0e0;"></span> Vacío</s
-pan>';
-  document.getElementById('mapLegend')
-.innerHTML = legendHtml;
+  const legendHtml = currentView === 'inv'
+    ? '<span class="legend-item"><span class="legend-dot" style="background:#0f9d58;"></span> Inventariado</span><span class="legend-item"><span class="legend-dot" style="background:#ea4335;"></span> Pendiente</span><span class="legend-item"><span class="legend-dot" style="background:#cfd8dc;"></span> Vacío</span>'
+    : '<span class="legend-item"><span class="legend-dot" style="background:#1565c0;"></span> Con Stock</span><span class="legend-item"><span class="legend-dot" style="background:#eeeeee;border:1px solid #e0e0e0;"></span> Vacío</span>';
+  document.getElementById('mapLegend').innerHTML = legendHtml;
 }
 
-function refreshA
-ll() {
+function refreshAll() {
   recalcZonas();
   calcOcupacion();
-  
-renderMapa();
+  renderMapa();
 
-  const total = zonas.reduce((
-s,z) => s + z.total, 0);
-  const inv = zonas.
-reduce((s,z) => s + z.inv, 0);
-  const pend =
- total - inv;
-  const occTot = zonas.reduce((
-s,z) => s + (z.occ||0), 0);
-  const emptyTot 
-= total - occTot;
-  const pctInv = (inv/total
-*100).toFixed(1);
-  const pctOcc = total > 0 
-? (occTot/total*100).toFixed(1) : 0;
+  const total = zonas.reduce((s,z) => s + z.total, 0);
+  const inv = zonas.reduce((s,z) => s + z.inv, 0);
+  const pend = total - inv;
+  const occTot = zonas.reduce((s,z) => s + (z.occ||0), 0);
+  const emptyTot = total - occTot;
+  const pctInv = (inv/total*100).toFixed(1);
+  const pctOcc = total > 0 ? (occTot/total*100).toFixed(1) : 0;
 
-  docum
-ent.getElementById('fecha').textContent = 'Ac
-tualizado: ' + new Date().toLocaleString('es-
-AR') + (Object.keys(stockData).length > 0 ? '
- | Stock: ' + Object.keys(stockData).length +
- ' locs ocupadas' : '');
+  document.getElementById('fecha').textContent = 'Actualizado: ' + new Date().toLocaleString('es-AR') + (Object.keys(stockData).length > 0 ? ' | Stock: ' + Object.keys(stockData).length + ' locs ocupadas' : '');
 
-  if (currentView =
-== 'inv') {
-    document.getElementById('kpiR
-ow').innerHTML = [
-      {label:'Total Ubicac
-iones', v:total, c:'blue', s:'A inventariar'}
-,
-      {label:'Inventariadas', v:inv, c:'gre
-en', s:'Completadas'},
-      {label:'Pendient
-es', v:pend, c:'orange', s:'Faltan '+pend},
- 
-     {label:'Avance', v:pctInv+'%', c:'purple
-', s:'Progreso general'}
-    ].map(k => '<div
- class="kpi-card '+k.c+'"><div class="label">
-'+k.label+'</div><div class="value">'+k.v+'</
-div><div class="sub">'+k.s+'</div></div>').jo
-in('');
+  if (currentView === 'inv') {
+    document.getElementById('kpiRow').innerHTML = [
+      {label:'Total Ubicaciones', v:total, c:'blue', s:'A inventariar'},
+      {label:'Inventariadas', v:inv, c:'green', s:'Completadas'},
+      {label:'Pendientes', v:pend, c:'orange', s:'Faltan '+pend},
+      {label:'Avance', v:pctInv+'%', c:'purple', s:'Progreso general'}
+    ].map(k => '<div class="kpi-card '+k.c+'"><div class="label">'+k.label+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>').join('');
   } else {
-    document.getElementByI
-d('kpiRow').innerHTML = [
-      {label:'Total
- Ubicaciones', v:total, c:'blue', s:'En el de
-pósito'},
-      {label:'Con Stock (ocupadas)
-', v:occTot, c:'teal', s:'Ubicaciones con pro
-ducto'},
-      {label:'Vacías (disponibles)'
-, v:emptyTot, c:'orange', s:'Ubicaciones libr
-es'},
-      {label:'Ocupación', v:pctOcc+'%'
-, c:'cyan', s:'del espacio ocupado'}
-    ].ma
-p(k => '<div class="kpi-card '+k.c+'"><div cl
-ass="label">'+k.label+'</div><div class="valu
-e">'+k.v+'</div><div class="sub">'+k.s+'</div
-></div>').join('');
+    document.getElementById('kpiRow').innerHTML = [
+      {label:'Total Ubicaciones', v:total, c:'blue', s:'En el depósito'},
+      {label:'Con Stock (ocupadas)', v:occTot, c:'teal', s:'Ubicaciones con producto'},
+      {label:'Vacías (disponibles)', v:emptyTot, c:'orange', s:'Ubicaciones libres'},
+      {label:'Ocupación', v:pctOcc+'%', c:'cyan', s:'del espacio ocupado'}
+    ].map(k => '<div class="kpi-card '+k.c+'"><div class="label">'+k.label+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>').join('');
   }
 
-  const sorted = [..
-.zonas].sort((a,b) => a.name.localeCompare(b.
-name));
+  const sorted = [...zonas].sort((a,b) => a.name.localeCompare(b.name));
 
-  const genLbl = currentView === 'in
-v' ? ['Inventariadas','Pendientes'] : ['Con S
-tock','Vacías'];
-  const genData = currentVi
-ew === 'inv' ? [inv, pend] : [occTot, emptyTo
-t];
-  const genColors = currentView === 'inv'
- ? ['#0f9d58','#ea4335'] : ['#00796b','#cfd8d
-c'];
+  const genLbl = currentView === 'inv' ? ['Inventariadas','Pendientes'] : ['Con Stock','Vacías'];
+  const genData = currentView === 'inv' ? [inv, pend] : [occTot, emptyTot];
+  const genColors = currentView === 'inv' ? ['#0f9d58','#ea4335'] : ['#00796b','#cfd8dc'];
 
   if (!chartGeneral) {
-    chartGeneral
- = new Chart(document.getElementById('chartGe
-neral'), {
+    chartGeneral = new Chart(document.getElementById('chartGeneral'), {
       type:'doughnut', data:{
-    
-    labels:genLbl,
-        datasets:[{data:ge
-nData, backgroundColor:genColors, borderWidth
-:0}]
-      }, options:{responsive:true, maint
-ainAspectRatio:false, plugins:{legend:{positi
-on:'bottom', labels:{color:'#5f6368'}}}}
-    
-});
-    chartZonas = new Chart(document.getEl
-ementById('chartZonas'), {
-      type:'bar', 
-data:{
-        labels: sorted.map(z => z.name
-),
+        labels:genLbl,
+        datasets:[{data:genData, backgroundColor:genColors, borderWidth:0}]
+      }, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{color:'#5f6368'}}}}
+    });
+    chartZonas = new Chart(document.getElementById('chartZonas'), {
+      type:'bar', data:{
+        labels: sorted.map(z => z.name),
         datasets: currentView === 'inv'
-  
-        ? [{label:'Inventariado', data:sorted
-.map(z => z.inv), backgroundColor:'#0f9d58', 
-borderRadius:3},
-             {label:'Pendien
-te', data:sorted.map(z => z.total - z.inv), b
-ackgroundColor:'#ea4335', borderRadius:3}]
-  
-        : [{label:'Con Stock', data:sorted.ma
-p(z => z.occ||0), backgroundColor:'#00796b', 
-borderRadius:3},
-             {label:'Vacío'
-, data:sorted.map(z => z.total - (z.occ||0)),
- backgroundColor:'#cfd8dc', borderRadius:3}]
-
-      }, options:{responsive:true, maintainAs
-pectRatio:false, scales:{x:{stacked:true, tic
-ks:{color:'#5f6368'}}, y:{stacked:true, ticks
-:{color:'#5f6368'}}}, plugins:{legend:{positi
-on:'bottom', labels:{color:'#5f6368'}}}}
-    
-});
-    chartBar = new Chart(document.getElem
-entById('chartBar'), {
-      type:'bar', data
-:{
+          ? [{label:'Inventariado', data:sorted.map(z => z.inv), backgroundColor:'#0f9d58', borderRadius:3},
+             {label:'Pendiente', data:sorted.map(z => z.total - z.inv), backgroundColor:'#ea4335', borderRadius:3}]
+          : [{label:'Con Stock', data:sorted.map(z => z.occ||0), backgroundColor:'#00796b', borderRadius:3},
+             {label:'Vacío', data:sorted.map(z => z.total - (z.occ||0)), backgroundColor:'#cfd8dc', borderRadius:3}]
+      }, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, ticks:{color:'#5f6368'}}, y:{stacked:true, ticks:{color:'#5f6368'}}}, plugins:{legend:{position:'bottom', labels:{color:'#5f6368'}}}}
+    });
+    chartBar = new Chart(document.getElementById('chartBar'), {
+      type:'bar', data:{
         labels:['Ubicaciones'],
-        da
-tasets: currentView === 'inv'
-          ? [{l
-abel:'Completadas', data:[inv], backgroundCol
-or:'#0f9d58', borderRadius:4},
-             {
-label:'Restantes', data:[pend], backgroundCol
-or:'#ea4335', borderRadius:4}]
-          : [{
-label:'Ocupadas', data:[occTot], backgroundCo
-lor:'#00796b', borderRadius:4},
-             
-{label:'Vacías', data:[emptyTot], background
-Color:'#cfd8dc', borderRadius:4}]
-      }, op
-tions:{indexAxis:'y', responsive:true, mainta
-inAspectRatio:false, scales:{x:{stacked:true,
- ticks:{color:'#5f6368'}}, y:{stacked:true, t
-icks:{color:'#5f6368'}}}, plugins:{legend:{po
-sition:'bottom', labels:{color:'#5f6368'}}}}
-
+        datasets: currentView === 'inv'
+          ? [{label:'Completadas', data:[inv], backgroundColor:'#0f9d58', borderRadius:4},
+             {label:'Restantes', data:[pend], backgroundColor:'#ea4335', borderRadius:4}]
+          : [{label:'Ocupadas', data:[occTot], backgroundColor:'#00796b', borderRadius:4},
+             {label:'Vacías', data:[emptyTot], backgroundColor:'#cfd8dc', borderRadius:4}]
+      }, options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, ticks:{color:'#5f6368'}}, y:{stacked:true, ticks:{color:'#5f6368'}}}, plugins:{legend:{position:'bottom', labels:{color:'#5f6368'}}}}
     });
-    chartRanking = new Chart(document
-.getElementById('chartRanking'), {
-      type
-:'bar', data:{
-        labels: sorted.map(z =
-> z.name),
-        datasets:[{label:'% Avance
-', data:sorted.map(z => currentView === 'inv'
- ? (z.inv/z.total*100).toFixed(1) : ((z.occ||
-0)/z.total*100).toFixed(1)), backgroundColor:
-sorted.map(z => {
-          const p = current
-View === 'inv' ? (z.inv/z.total*100) : ((z.oc
-c||0)/z.total*100);
-          return p >= 75 
-? '#0f9d58' : p >= 40 ? '#f9a825' : p > 0 ? '
-#f9a825' : '#ea4335';
-        }), borderRadiu
-s:3}]
-      }, options:{indexAxis:'y', respon
-sive:true, maintainAspectRatio:false, scales:
-{x:{max:100, ticks:{color:'#5f6368', callback
-:v=>v+'%'}}, y:{ticks:{color:'#5f6368'}}}, pl
-ugins:{legend:{display:false}}}
+    chartRanking = new Chart(document.getElementById('chartRanking'), {
+      type:'bar', data:{
+        labels: sorted.map(z => z.name),
+        datasets:[{label:'% Avance', data:sorted.map(z => currentView === 'inv' ? (z.inv/z.total*100).toFixed(1) : ((z.occ||0)/z.total*100).toFixed(1)), backgroundColor:sorted.map(z => {
+          const p = currentView === 'inv' ? (z.inv/z.total*100) : ((z.occ||0)/z.total*100);
+          return p >= 75 ? '#0f9d58' : p >= 40 ? '#f9a825' : p > 0 ? '#f9a825' : '#ea4335';
+        }), borderRadius:3}]
+      }, options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{x:{max:100, ticks:{color:'#5f6368', callback:v=>v+'%'}}, y:{ticks:{color:'#5f6368'}}}, plugins:{legend:{display:false}}}
     });
-  } e
-lse {
+  } else {
     chartGeneral.data.labels = genLbl;
+    chartGeneral.data.datasets[0].data = genData;
+    chartGeneral.data.datasets[0].backgroundColor = genColors;
+    chartGeneral.update();
 
-    chartGeneral.data.datasets[0].data = genD
-ata;
-    chartGeneral.data.datasets[0].backgr
-oundColor = genColors;
-    chartGeneral.updat
-e();
-
-    chartZonas.data.labels = sorted.map
-(z => z.name);
-    if (currentView === 'inv')
- {
-      chartZonas.data.datasets[0].label = 
-'Inventariado';
-      chartZonas.data.dataset
-s[0].data = sorted.map(z => z.inv);
-      cha
-rtZonas.data.datasets[0].backgroundColor = '#
-0f9d58';
-      chartZonas.data.datasets[1].la
-bel = 'Pendiente';
-      chartZonas.data.data
-sets[1].data = sorted.map(z => z.total - z.in
-v);
-      chartZonas.data.datasets[1].backgro
-undColor = '#ea4335';
+    chartZonas.data.labels = sorted.map(z => z.name);
+    if (currentView === 'inv') {
+      chartZonas.data.datasets[0].label = 'Inventariado';
+      chartZonas.data.datasets[0].data = sorted.map(z => z.inv);
+      chartZonas.data.datasets[0].backgroundColor = '#0f9d58';
+      chartZonas.data.datasets[1].label = 'Pendiente';
+      chartZonas.data.datasets[1].data = sorted.map(z => z.total - z.inv);
+      chartZonas.data.datasets[1].backgroundColor = '#ea4335';
     } else {
-      char
-tZonas.data.datasets[0].label = 'Con Stock';
-
-      chartZonas.data.datasets[0].data = sort
-ed.map(z => z.occ||0);
-      chartZonas.data.
-datasets[0].backgroundColor = '#00796b';
-    
-  chartZonas.data.datasets[1].label = 'Vacío
-';
-      chartZonas.data.datasets[1].data = s
-orted.map(z => z.total - (z.occ||0));
-      c
-hartZonas.data.datasets[1].backgroundColor = 
-'#cfd8dc';
+      chartZonas.data.datasets[0].label = 'Con Stock';
+      chartZonas.data.datasets[0].data = sorted.map(z => z.occ||0);
+      chartZonas.data.datasets[0].backgroundColor = '#00796b';
+      chartZonas.data.datasets[1].label = 'Vacío';
+      chartZonas.data.datasets[1].data = sorted.map(z => z.total - (z.occ||0));
+      chartZonas.data.datasets[1].backgroundColor = '#cfd8dc';
     }
     chartZonas.update();
 
-  
-  chartBar.data.datasets[0].data = currentVie
-w === 'inv' ? [inv] : [occTot];
-    chartBar.
-data.datasets[0].label = currentView === 'inv
-' ? 'Completadas' : 'Ocupadas';
-    chartBar.
-data.datasets[0].backgroundColor = currentVie
-w === 'inv' ? '#0f9d58' : '#00796b';
-    char
-tBar.data.datasets[1].data = currentView === 
-'inv' ? [pend] : [emptyTot];
-    chartBar.dat
-a.datasets[1].label = currentView === 'inv' ?
- 'Restantes' : 'Vacías';
-    chartBar.data.d
-atasets[1].backgroundColor = currentView === 
-'inv' ? '#ea4335' : '#cfd8dc';
-    chartBar.u
-pdate();
+    chartBar.data.datasets[0].data = currentView === 'inv' ? [inv] : [occTot];
+    chartBar.data.datasets[0].label = currentView === 'inv' ? 'Completadas' : 'Ocupadas';
+    chartBar.data.datasets[0].backgroundColor = currentView === 'inv' ? '#0f9d58' : '#00796b';
+    chartBar.data.datasets[1].data = currentView === 'inv' ? [pend] : [emptyTot];
+    chartBar.data.datasets[1].label = currentView === 'inv' ? 'Restantes' : 'Vacías';
+    chartBar.data.datasets[1].backgroundColor = currentView === 'inv' ? '#ea4335' : '#cfd8dc';
+    chartBar.update();
 
-    const r2 = [...zonas].sort((a,b
-) => (currentView === 'inv' ? (b.inv/b.total*
-100) : ((b.occ||0)/b.total*100)) - (currentVi
-ew === 'inv' ? (a.inv/a.total*100) : ((a.occ|
-|0)/a.total*100)));
-    chartRanking.data.lab
-els = r2.map(z => z.name);
-    chartRanking.d
-ata.datasets[0].data = r2.map(z => currentVie
-w === 'inv' ? (z.inv/z.total*100).toFixed(1) 
-: ((z.occ||0)/z.total*100).toFixed(1));
-    c
-hartRanking.data.datasets[0].backgroundColor 
-= r2.map(z => {
-      const p = currentView =
-== 'inv' ? (z.inv/z.total*100) : ((z.occ||0)/
-z.total*100);
-      return p >= 75 ? '#0f9d58
-' : p >= 40 ? '#f9a825' : p > 0 ? '#f9a825' :
- '#ea4335';
+    const r2 = [...zonas].sort((a,b) => (currentView === 'inv' ? (b.inv/b.total*100) : ((b.occ||0)/b.total*100)) - (currentView === 'inv' ? (a.inv/a.total*100) : ((a.occ||0)/a.total*100)));
+    chartRanking.data.labels = r2.map(z => z.name);
+    chartRanking.data.datasets[0].data = r2.map(z => currentView === 'inv' ? (z.inv/z.total*100).toFixed(1) : ((z.occ||0)/z.total*100).toFixed(1));
+    chartRanking.data.datasets[0].backgroundColor = r2.map(z => {
+      const p = currentView === 'inv' ? (z.inv/z.total*100) : ((z.occ||0)/z.total*100);
+      return p >= 75 ? '#0f9d58' : p >= 40 ? '#f9a825' : p > 0 ? '#f9a825' : '#ea4335';
     });
-    chartRanking.update()
-;
+    chartRanking.update();
   }
 
-  document.getElementById('chartGenTit
-le').textContent = currentView === 'inv' ? 'P
-rogreso General' : 'Ocupación General';
-  do
-cument.getElementById('chartZonasTitle').text
-Content = currentView === 'inv' ? 'Avance por
- Zona' : 'Ocupación por Zona';
-  document.ge
-tElementById('chartBarTitle').textContent = c
-urrentView === 'inv' ? 'Completado vs Restant
-e' : 'Ocupado vs Vacío';
-  document.getEleme
-ntById('chartRankTitle').textContent = curren
-tView === 'inv' ? 'Ranking de Avance por Zona
-' : 'Ranking de Ocupación por Zona';
-  docum
-ent.getElementById('resumenTitle').textConten
-t = currentView === 'inv' ? 'Resumen General'
- : 'Resumen Ocupación';
-  document.getElemen
-tById('detalleTitle').textContent = currentVi
-ew === 'inv' ? 'Detalle por Zona' : 'Detalle 
-Ocupación por Zona';
+  document.getElementById('chartGenTitle').textContent = currentView === 'inv' ? 'Progreso General' : 'Ocupación General';
+  document.getElementById('chartZonasTitle').textContent = currentView === 'inv' ? 'Avance por Zona' : 'Ocupación por Zona';
+  document.getElementById('chartBarTitle').textContent = currentView === 'inv' ? 'Completado vs Restante' : 'Ocupado vs Vacío';
+  document.getElementById('chartRankTitle').textContent = currentView === 'inv' ? 'Ranking de Avance por Zona' : 'Ranking de Ocupación por Zona';
+  document.getElementById('resumenTitle').textContent = currentView === 'inv' ? 'Resumen General' : 'Resumen Ocupación';
+  document.getElementById('detalleTitle').textContent = currentView === 'inv' ? 'Detalle por Zona' : 'Detalle Ocupación por Zona';
 
-  const tHead = docume
-nt.querySelector('#tablaZonas thead tr');
-  i
-f (currentView === 'inv') {
-    tHead.innerHT
-ML = '<th style="text-align:left;padding:8px;
-color:#00796b;">Zona</th><th style="text-alig
-n:center;padding:8px;color:#00796b;">Total</t
-h><th style="text-align:center;padding:8px;co
-lor:#00796b;">Hecho</th><th style="text-align
-:center;padding:8px;color:#00796b;">Pend</th>
-<th style="text-align:right;padding:8px;color
-:#00796b;">%</th>';
+  const tHead = document.querySelector('#tablaZonas thead tr');
+  if (currentView === 'inv') {
+    tHead.innerHTML = '<th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Hecho</th><th style="text-align:center;padding:8px;color:#00796b;">Pend</th><th style="text-align:right;padding:8px;color:#00796b;">%</th>';
   } else {
-    tHead.inne
-rHTML = '<th style="text-align:left;padding:8
-px;color:#00796b;">Zona</th><th style="text-a
-lign:center;padding:8px;color:#00796b;">Total
-</th><th style="text-align:center;padding:8px
-;color:#00796b;">Ocupado</th><th style="text-
-align:center;padding:8px;color:#00796b;">Vac�
-�o</th><th style="text-align:right;padding:8p
-x;color:#00796b;">% Ocup</th>';
+    tHead.innerHTML = '<th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Ocupado</th><th style="text-align:center;padding:8px;color:#00796b;">Vacío</th><th style="text-align:right;padding:8px;color:#00796b;">% Ocup</th>';
   }
 
-  const 
-tbody = document.getElementById('tablaBody');
-
+  const tbody = document.getElementById('tablaBody');
   tbody.innerHTML = '';
-  [...zonas].sort((a
-,b) => a.name.localeCompare(b.name)).forEach(
-z => {
+  [...zonas].sort((a,b) => a.name.localeCompare(b.name)).forEach(z => {
     const pctZ = currentView === 'inv'
-
-      ? (z.total > 0 ? (z.inv/z.total*100).t
-oFixed(0) : 0)
-      : (z.total > 0 ? ((z.occ
-||0)/z.total*100).toFixed(0) : 0);
-    const 
-color = pctZ >= 100 ? '#0f9d58' : pctZ > 0 ? 
-'#f9a825' : '#ea4335';
-    if (currentView ==
-= 'inv') {
-      tbody.innerHTML += '<tr styl
-e="border-bottom:1px solid #f0f0f0;"><td styl
-e="padding:6px 8px;font-weight:600;">'+z.name
-+'</td><td style="padding:6px 8px;text-align:
-center;">'+z.total+'</td><td style="padding:6
-px 8px;text-align:center;color:#0f9d58;font-w
-eight:600;">'+z.inv+'</td><td style="padding:
-6px 8px;text-align:center;color:'+(z.total-z.
-inv > 0 ? '#ea4335' : '#0f9d58')+';">'+(z.tot
-al-z.inv)+'</td><td style="padding:6px 8px;te
-xt-align:right;font-weight:700;color:'+color+
-';">'+pctZ+'%</td></tr>';
+      ? (z.total > 0 ? (z.inv/z.total*100).toFixed(0) : 0)
+      : (z.total > 0 ? ((z.occ||0)/z.total*100).toFixed(0) : 0);
+    const color = pctZ >= 100 ? '#0f9d58' : pctZ > 0 ? '#f9a825' : '#ea4335';
+    if (currentView === 'inv') {
+      tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#0f9d58;font-weight:600;">'+z.inv+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-z.inv > 0 ? '#ea4335' : '#0f9d58')+';">'+(z.total-z.inv)+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
     } else {
-      
-tbody.innerHTML += '<tr style="border-bottom:
-1px solid #f0f0f0;"><td style="padding:6px 8p
-x;font-weight:600;">'+z.name+'</td><td style=
-"padding:6px 8px;text-align:center;">'+z.tota
-l+'</td><td style="padding:6px 8px;text-align
-:center;color:#00796b;font-weight:600;">'+(z.
-occ||0)+'</td><td style="padding:6px 8px;text
--align:center;color:'+(z.total-(z.occ||0) > 0
- ? '#78909c' : '#00796b')+';">'+(z.total-(z.o
-cc||0))+'</td><td style="padding:6px 8px;text
--align:right;font-weight:700;color:'+color+';
-">'+pctZ+'%</td></tr>';
+      tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#00796b;font-weight:600;">'+(z.occ||0)+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-(z.occ||0) > 0 ? '#78909c' : '#00796b')+';">'+(z.total-(z.occ||0))+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
     }
   });
 
-  const 
-zonasCompletas = zonas.filter(z => {
-    if (
-currentView === 'inv') return z.total === z.i
-nv;
+  const zonasCompletas = zonas.filter(z => {
+    if (currentView === 'inv') return z.total === z.inv;
     return (z.occ||0) === z.total;
-  }).l
-ength;
-  const zonasCero = zonas.filter(z => 
-{
-    if (currentView === 'inv') return z.inv
- === 0;
+  }).length;
+  const zonasCero = zonas.filter(z => {
+    if (currentView === 'inv') return z.inv === 0;
     return (z.occ||0) === 0;
-  }).len
-gth;
-  const zonasParcial = zonas.length - zo
-nasCompletas - zonasCero;
-  const mejorZona =
- [...zonas].sort((a,b) => {
-    const pa = cu
-rrentView === 'inv' ? (a.inv/a.total*100) : (
-(a.occ||0)/a.total*100);
-    const pb = curre
-ntView === 'inv' ? (b.inv/b.total*100) : ((b.
-occ||0)/b.total*100);
+  }).length;
+  const zonasParcial = zonas.length - zonasCompletas - zonasCero;
+  const mejorZona = [...zonas].sort((a,b) => {
+    const pa = currentView === 'inv' ? (a.inv/a.total*100) : ((a.occ||0)/a.total*100);
+    const pb = currentView === 'inv' ? (b.inv/b.total*100) : ((b.occ||0)/b.total*100);
     return pb - pa;
-  }
-)[0];
-  const peorZona = [...zonas].sort((a,b
-) => {
-    const pa = currentView === 'inv' ?
- (a.inv/a.total*100) : ((a.occ||0)/a.total*10
-0);
-    const pb = currentView === 'inv' ? (b
-.inv/b.total*100) : ((b.occ||0)/b.total*100);
-
+  })[0];
+  const peorZona = [...zonas].sort((a,b) => {
+    const pa = currentView === 'inv' ? (a.inv/a.total*100) : ((a.occ||0)/a.total*100);
+    const pb = currentView === 'inv' ? (b.inv/b.total*100) : ((b.occ||0)/b.total*100);
     return pa - pb;
   })[0];
 
-  const labelH
-echo = currentView === 'inv' ? 'Inventariadas
-' : 'Ocupadas';
-  const labelPend = currentVi
-ew === 'inv' ? 'Pendientes' : 'Vacías';
-  co
-nst colorHecho = currentView === 'inv' ? '#0f
-9d58' : '#00796b';
-  const colorPend = curren
-tView === 'inv' ? '#ea4335' : '#78909c';
+  const labelHecho = currentView === 'inv' ? 'Inventariadas' : 'Ocupadas';
+  const labelPend = currentView === 'inv' ? 'Pendientes' : 'Vacías';
+  const colorHecho = currentView === 'inv' ? '#0f9d58' : '#00796b';
+  const colorPend = currentView === 'inv' ? '#ea4335' : '#78909c';
 
-  c
-onst datoHecho = currentView === 'inv' ? inv 
-: occTot;
-  const datoPend = currentView === 
-'inv' ? pend : emptyTot;
+  const datoHecho = currentView === 'inv' ? inv : occTot;
+  const datoPend = currentView === 'inv' ? pend : emptyTot;
 
-  document.getEleme
-ntById('resumenTable').innerHTML = `
-<table s
-tyle="width:100%;border-collapse:collapse;">
-
-<tr><td style="padding:6px 8px;border-bottom:
-1px solid #e8eaed;color:#5f6368;">Total ubica
-ciones</td><td style="padding:6px 8px;border-
-bottom:1px solid #e8eaed;font-weight:700;text
--align:right;">${total}</td></tr>
-<tr><td sty
-le="padding:6px 8px;border-bottom:1px solid #
-e8eaed;color:#5f6368;">${labelHecho}</td><td 
-style="padding:6px 8px;border-bottom:1px soli
-d #e8eaed;font-weight:700;text-align:right;co
-lor:${colorHecho};">${datoHecho}</td></tr>
-<t
-r><td style="padding:6px 8px;border-bottom:1p
-x solid #e8eaed;color:#5f6368;">${labelPend}<
-/td><td style="padding:6px 8px;border-bottom:
-1px solid #e8eaed;font-weight:700;text-align:
-right;color:${colorPend};">${datoPend}</td></
-tr>
-<tr><td style="padding:6px 8px;border-bot
-tom:1px solid #e8eaed;color:#5f6368;">${curre
-ntView === 'inv' ? 'Porcentaje avance' : 'Por
-centaje ocupación'}</td><td style="padding:6
-px 8px;border-bottom:1px solid #e8eaed;font-w
-eight:700;text-align:right;color:#00796b;">${
-currentView === 'inv' ? pctInv : pctOcc}%</td
-></tr>
-<tr><td style="padding:6px 8px;border-
-bottom:1px solid #e8eaed;color:#5f6368;">${cu
-rrentView === 'inv' ? 'Zonas completas (100%)
-' : 'Zonas 100% ocupadas'}</td><td style="pad
-ding:6px 8px;border-bottom:1px solid #e8eaed;
-font-weight:700;text-align:right;color:#0f9d5
-8;">${zonasCompletas}</td></tr>
-<tr><td style
-="padding:6px 8px;border-bottom:1px solid #e8
-eaed;color:#5f6368;">${currentView === 'inv' 
-? 'Zonas sin empezar (0%)' : 'Zonas 0% ocupad
-as'}</td><td style="padding:6px 8px;border-bo
-ttom:1px solid #e8eaed;font-weight:700;text-a
-lign:right;color:#ea4335;">${zonasCero}</td><
-/tr>
-<tr><td style="padding:6px 8px;border-bo
-ttom:1px solid #e8eaed;color:#5f6368;">${curr
-entView === 'inv' ? 'Zonas en progreso' : 'Zo
-nas parcialmente ocupadas'}</td><td style="pa
-dding:6px 8px;border-bottom:1px solid #e8eaed
-;font-weight:700;text-align:right;color:#f9a8
-25;">${zonasParcial}</td></tr>
-<tr><td style=
-"padding:6px 8px;color:#5f6368;">${currentVie
-w === 'inv' ? 'Mejor zona' : 'Zona más ocupa
-da'}</td><td style="padding:6px 8px;font-weig
-ht:700;text-align:right;">${mejorZona ? mejor
-Zona.name+' ('+(currentView === 'inv' ? (mejo
-rZona.inv/mejorZona.total*100) : ((mejorZona.
-occ||0)/mejorZona.total*100)).toFixed(0)+'%)'
- : '-'}</td></tr>
-<tr><td style="padding:6px 
-8px;color:#5f6368;">${currentView === 'inv' ?
- 'Zona con menor avance' : 'Zona menos ocupad
-a'}</td><td style="padding:6px 8px;font-weigh
-t:700;text-align:right;">${peorZona ? peorZon
-a.name+' ('+(currentView === 'inv' ? (peorZon
-a.inv/peorZona.total*100) : ((peorZona.occ||0
-)/peorZona.total*100)).toFixed(0)+'%)' : '-'}
-</td></tr>
+  document.getElementById('resumenTable').innerHTML = `
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">Total ubicaciones</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;">${total}</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${labelHecho}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:${colorHecho};">${datoHecho}</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${labelPend}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:${colorPend};">${datoPend}</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Porcentaje avance' : 'Porcentaje ocupación'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#00796b;">${currentView === 'inv' ? pctInv : pctOcc}%</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas completas (100%)' : 'Zonas 100% ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#0f9d58;">${zonasCompletas}</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas sin empezar (0%)' : 'Zonas 0% ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#ea4335;">${zonasCero}</td></tr>
+<tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas en progreso' : 'Zonas parcialmente ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#f9a825;">${zonasParcial}</td></tr>
+<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Mejor zona' : 'Zona más ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${mejorZona ? mejorZona.name+' ('+(currentView === 'inv' ? (mejorZona.inv/mejorZona.total*100) : ((mejorZona.occ||0)/mejorZona.total*100)).toFixed(0)+'%)' : '-'}</td></tr>
+<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Zona con menor avance' : 'Zona menos ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${peorZona ? peorZona.name+' ('+(currentView === 'inv' ? (peorZona.inv/peorZona.total*100) : ((peorZona.occ||0)/peorZona.total*100)).toFixed(0)+'%)' : '-'}</td></tr>
 </table>`;
 
-  document.getElementB
-yId('zoneGridTitle').textContent = currentVie
-w === 'inv' ? 'Detalle por Zona (Tarjetas)' :
- 'Ocupación por Zona (Tarjetas)';
-  document
-.getElementById('zoneGrid').innerHTML = '';
- 
- [...zonas].sort((a,b) => a.name.localeCompar
-e(b.name)).forEach(z => {
-    const p = curre
-ntView === 'inv' ? (z.total > 0 ? (z.inv/z.to
-tal*100).toFixed(0) : 0) : (z.total > 0 ? ((z
-.occ||0)/z.total*100).toFixed(0) : 0);
-    co
-nst v = currentView === 'inv' ? z.inv : (z.oc
-c||0);
-    const fillClass = currentView === 
-'inv' ? '' : ' blue-grad';
-    document.getEl
-ementById('zoneGrid').innerHTML += '<div clas
-s="zone-card"><div class="z-name">'+z.name+'<
-/div><div class="z-bar"><div class="z-fill'+f
-illClass+'" style="width:'+p+'%"></div></div>
-<div class="z-text">'+(currentView === 'inv' 
-? '✅ '+v+'/'+z.total+' inventariados' : '�
-�� '+v+'/'+z.total+' ocupados')+' ('+p+'%)</d
-iv></div>';
+  document.getElementById('zoneGridTitle').textContent = currentView === 'inv' ? 'Detalle por Zona (Tarjetas)' : 'Ocupación por Zona (Tarjetas)';
+  document.getElementById('zoneGrid').innerHTML = '';
+  [...zonas].sort((a,b) => a.name.localeCompare(b.name)).forEach(z => {
+    const p = currentView === 'inv' ? (z.total > 0 ? (z.inv/z.total*100).toFixed(0) : 0) : (z.total > 0 ? ((z.occ||0)/z.total*100).toFixed(0) : 0);
+    const v = currentView === 'inv' ? z.inv : (z.occ||0);
+    const fillClass = currentView === 'inv' ? '' : ' blue-grad';
+    document.getElementById('zoneGrid').innerHTML += '<div class="zone-card"><div class="z-name">'+z.name+'</div><div class="z-bar"><div class="z-fill'+fillClass+'" style="width:'+p+'%"></div></div><div class="z-text">'+(currentView === 'inv' ? '✅ '+v+'/'+z.total+' inventariados' : '📦 '+v+'/'+z.total+' ocupados')+' ('+p+'%)</div></div>';
   });
 }
 
-if (typeof XLSX === 'und
-efined') {
-  document.getElementById('uploadS
-tatus').textContent = '✕ La librería XLSX 
-no cargó. Probá recargar la página o usar 
-otro navegador.';
-  document.getElementById('
-uploadStatus').className = 'status err';
+if (typeof XLSX === 'undefined') {
+  document.getElementById('uploadStatus').textContent = '✕ La librería XLSX no cargó. Probá recargar la página o usar otro navegador.';
+  document.getElementById('uploadStatus').className = 'status err';
 }
 initFromFirestore();
 renderMapa();
 refreshAll();
-</scrip
-t>
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
