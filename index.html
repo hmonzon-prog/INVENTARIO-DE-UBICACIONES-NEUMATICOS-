@@ -77,6 +77,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50;
 <span class="status" id="uploadStatus">⚠️ Sin archivo cargado</span>
 <button class="btn" id="btnLimpiar" onclick="limpiarStock()" disabled style="background:#e53935;">✕ Limpiar</button>
 <button class="btn" id="btnEjemplo" onclick="cargarEjemplo()" style="background:#1565c0;">🔬 Cargar ejemplo</button>
+<button class="btn" onclick="descargarInventariadas()" style="background:#0f9d58;">⬇ Descargar Excel</button>
 </div>
 
 <div class="kpi-row" id="kpiRow"></div>
@@ -378,6 +379,17 @@ function cargarEjemplo() {
   st.className = 'status ok';
   document.getElementById('btnLimpiar').disabled = false;
   refreshAll();
+}
+
+function descargarInventariadas() {
+  const inv = Object.keys(invData).filter(k => invData[k] === 1).sort();
+  if (inv.length === 0) { alert('No hay ubicaciones inventariadas.'); return; }
+  const data = [['Ubicación', 'Estado']];
+  inv.forEach(k => data.push([k, 'Inventariado']));
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Inventariadas');
+  XLSX.writeFile(wb, 'ubicaciones_inventariadas.xlsx');
 }
 
 function recalcZonas() {
