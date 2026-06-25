@@ -6,8 +6,8 @@
 <title>Ocupacion Stock OB</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50; padding: 20px; }
@@ -147,24 +147,32 @@ let stockData = {};
 let currentView = 'inv';
 let chartGeneral, chartZonas, chartBar, chartRanking;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC8fogrQeHgkC-7k_h0NHE6Lj5-qYRsO64",
-  authDomain: "prode-mundial-2026-8ae43.firebaseapp.com",
-  projectId: "prode-mundial-2026-8ae43",
-  storageBucket: "prode-mundial-2026-8ae43.firebasestorage.app",
-  messagingSenderId: "1058801947988",
-  appId: "1:1058801947988:web:4a826fd7f412f05ec274d5"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+let db = null;
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyC8fogrQeHgkC-7k_h0NHE6Lj5-qYRsO64",
+    authDomain: "prode-mundial-2026-8ae43.firebaseapp.com",
+    projectId: "prode-mundial-2026-8ae43",
+    storageBucket: "prode-mundial-2026-8ae43.firebasestorage.app",
+    messagingSenderId: "1058801947988",
+    appId: "1:1058801947988:web:4a826fd7f412f05ec274d5"
+  };
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  }
+} catch(e) { console.error('Firebase init error:', e); }
 
 function saveData() {
   localStorage.setItem('obInvData', JSON.stringify(invData));
-  db.collection('inventario').doc('ubicaciones').set({ data: invData }, { merge: true })
-    .catch(err => console.error('Firestore write error:', err));
+  if (db) {
+    db.collection('inventario').doc('ubicaciones').set({ data: invData }, { merge: true })
+      .catch(err => console.error('Firestore write error:', err));
+  }
 }
 let unsubscribe = null;
 function startFirestoreListener() {
+  if (!db) return;
   unsubscribe = db.collection('inventario').doc('ubicaciones').onSnapshot((doc) => {
     if (doc.exists) {
       const remoteData = doc.data().data;
@@ -185,17 +193,22 @@ function startFirestoreListener() {
 }
 async function initFromFirestore() {
   try {
-    const docRef = db.collection('inventario').doc('ubicaciones');
-    const doc = await docRef.get();
-    if (doc.exists) {
-      const remoteData = doc.data().data;
-      if (remoteData) {
-        for (const k in remoteData) {
-          if (k in invData) invData[k] = remoteData[k];
+    if (db) {
+      const docRef = db.collection('inventario').doc('ubicaciones');
+      const doc = await docRef.get();
+      if (doc.exists) {
+        const remoteData = doc.data().data;
+        if (remoteData) {
+          for (const k in remoteData) {
+            if (k in invData) invData[k] = remoteData[k];
+          }
         }
+      } else {
+        await docRef.set({ data: invData });
       }
     } else {
-      await docRef.set({ data: invData });
+      const saved = localStorage.getItem('obInvData');
+      if (saved) { const parsed = JSON.parse(saved); for (const k in parsed) if (k in invData) invData[k] = parsed[k]; }
     }
   } catch (err) {
     console.error('Firestore init error, using localStorage:', err);
