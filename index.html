@@ -208,10 +208,12 @@ async function initFromFirestore() {
   refreshAll();
 }
 function toggleLoc(key) {
-  if (!(key in invData)) return;
-  invData[key] = invData[key] === 1 ? 0 : 1;
-  saveData();
-  refreshAll();
+  try {
+    if (!(key in invData)) return;
+    invData[key] = invData[key] === 1 ? 0 : 1;
+    saveData();
+    refreshAll();
+  } catch(e) { console.error('toggleLoc error:', e); }
 }
 
 function getStatus(nave, letra, num) {
@@ -503,6 +505,7 @@ function refreshAll() {
   const genData = currentView === 'inv' ? [inv, pend] : [occTot, emptyTot];
   const genColors = currentView === 'inv' ? ['#0f9d58','#ea4335'] : ['#00796b','#cfd8dc'];
 
+  try {
   if (!chartGeneral) {
     chartGeneral = new Chart(document.getElementById('chartGeneral'), {
       type:'doughnut', data:{
@@ -580,6 +583,7 @@ function refreshAll() {
     });
     chartRanking.update();
   }
+  } catch(e) { console.error('Chart error:', e); }
 
   document.getElementById('chartGenTitle').textContent = currentView === 'inv' ? 'Progreso General' : 'Ocupación General';
   document.getElementById('chartZonasTitle').textContent = currentView === 'inv' ? 'Avance por Zona' : 'Ocupación por Zona';
@@ -664,9 +668,8 @@ if (typeof XLSX === 'undefined') {
   document.getElementById('uploadStatus').textContent = '✕ La librería XLSX no cargó. Probá recargar la página o usar otro navegador.';
   document.getElementById('uploadStatus').className = 'status err';
 }
-initFromFirestore();
 renderMapa();
-refreshAll();
+initFromFirestore();
 </script>
 </body>
 </html>
