@@ -204,6 +204,7 @@ async function initFromFirestore() {
             if (k in invData) invData[k] = remoteData[k];
           }
         }
+        await docRef.set({ data: invData });
       } else {
         await docRef.set({ data: invData });
       }
