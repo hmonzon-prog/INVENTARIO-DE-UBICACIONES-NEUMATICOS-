@@ -167,7 +167,7 @@ try {
 function saveData() {
   localStorage.setItem('obInvData', JSON.stringify(invData));
   if (db) {
-    db.collection('inventario').doc('ubicaciones').set({ data: invData })
+    db.collection('inventario').doc('ubicaciones').set({ data: invData }, { merge: true })
       .catch(err => console.error('Firestore write error:', err));
   }
 }
@@ -204,7 +204,7 @@ async function initFromFirestore() {
             if (k in invData) invData[k] = remoteData[k];
           }
         }
-        await docRef.set({ data: invData });
+        await docRef.set({ data: invData }, { merge: true });
       } else {
         await docRef.set({ data: invData });
       }
