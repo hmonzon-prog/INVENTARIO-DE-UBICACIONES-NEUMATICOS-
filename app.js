@@ -22,7 +22,11 @@ try {
 } catch(e) { console.error('Firebase init error:', e); }
 
 function saveData() {
-  localStorage.setItem('obInvData', JSON.stringify(invData));
+  try {
+    localStorage.setItem('obInvData', JSON.stringify(invData));
+  } catch(e) {
+    console.error('localStorage write error:', e);
+  }
   if (db) {
     db.collection('inventario').doc('ubicaciones').set({ data: invData }, { merge: true })
       .catch(err => console.error('Firestore write error:', err));
@@ -49,6 +53,24 @@ function startFirestoreListener() {
     console.error('Firestore listener error:', error);
   });
 }
+function safeLoadFromStorage(saved) {
+  if (!saved) return null;
+  try {
+    const parsed = JSON.parse(saved);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+    const valid = {};
+    for (const k in parsed) {
+      if (k in invData && (parsed[k] === 0 || parsed[k] === 1)) {
+        valid[k] = parsed[k];
+      }
+    }
+    return Object.keys(valid).length > 0 ? valid : null;
+  } catch(e) {
+    console.error('Error parseando datos guardados:', e);
+    return null;
+  }
+}
+
 async function initFromFirestore() {
   try {
     if (db) {
@@ -56,9 +78,11 @@ async function initFromFirestore() {
       const doc = await docRef.get();
       if (doc.exists) {
         const remoteData = doc.data().data;
-        if (remoteData) {
+        if (remoteData && typeof remoteData === 'object' && !Array.isArray(remoteData)) {
           for (const k in remoteData) {
-            if (k in invData) invData[k] = remoteData[k];
+            if (k in invData && (remoteData[k] === 0 || remoteData[k] === 1)) {
+              invData[k] = remoteData[k];
+            }
           }
         }
         await docRef.set({ data: invData }, { merge: true });
@@ -66,15 +90,21 @@ async function initFromFirestore() {
         await docRef.set({ data: invData });
       }
     } else {
-      const saved = localStorage.getItem('obInvData');
-      if (saved) { const parsed = JSON.parse(saved); for (const k in parsed) if (k in invData) invData[k] = parsed[k]; }
+      const loaded = safeLoadFromStorage(localStorage.getItem('obInvData'));
+      if (loaded) {
+        for (const k in loaded) invData[k] = loaded[k];
+      }
     }
   } catch (err) {
     console.error('Firestore init error, using localStorage:', err);
     try {
-      const saved = localStorage.getItem('obInvData');
-      if (saved) { const parsed = JSON.parse(saved); for (const k in parsed) if (k in invData) invData[k] = parsed[k]; }
-    } catch(e) {}
+      const loaded = safeLoadFromStorage(localStorage.getItem('obInvData'));
+      if (loaded) {
+        for (const k in loaded) invData[k] = loaded[k];
+      }
+    } catch(e) {
+      console.error('localStorage fallback error:', e);
+    }
   }
   startFirestoreListener();
   refreshAll();
@@ -109,12 +139,30 @@ function setView(v) {
   refreshAll();
 }
 
+function safePct(val, total) {
+  if (!total || total === 0) return 0;
+  return (val / total * 100);
+}
+
+function safeText(el, text) {
+  if (el) el.textContent = text;
+}
+
+function safeHtml(el, html) {
+  if (el) el.innerHTML = html;
+}
+
 function limpiarStock() {
   stockData = {};
-  document.getElementById('stockFile').value = '';
-  document.getElementById('uploadStatus').textContent = 'Sin archivo cargado';
-  document.getElementById('uploadStatus').className = 'status';
-  document.getElementById('btnLimpiar').disabled = true;
+  const fileInput = safeGetEl('stockFile');
+  if (fileInput) fileInput.value = '';
+  const st = safeGetEl('uploadStatus');
+  if (st) {
+    st.textContent = 'Sin archivo cargado';
+    st.className = 'status';
+  }
+  const btn = safeGetEl('btnLimpiar');
+  if (btn) btn.disabled = true;
   refreshAll();
 }
 
@@ -134,19 +182,52 @@ function normalizarLoc(loc) {
   return null;
 }
 
+function safeGetEl(id) {
+  return document.getElementById(id);
+}
+
 function handleFile(event) {
   const file = event.target.files[0];
   if (!file) return;
-  const st = document.getElementById('uploadStatus');
+  const st = safeGetEl('uploadStatus');
+  if (!st) return;
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'xlsx' && ext !== 'xls') {
+    st.textContent = '✕ Formato no válido. Seleccioná un archivo .xlsx o .xls';
+    st.className = 'status err';
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    st.textContent = '✕ El archivo es muy grande (máx 10MB).';
+    st.className = 'status err';
+    return;
+  }
+
   st.textContent = 'Leyendo archivo...';
   st.className = 'status';
-  document.getElementById('btnLimpiar').disabled = true;
+  safeGetEl('btnLimpiar').disabled = true;
 
   const reader = new FileReader();
+  reader.onerror = function() {
+    st.textContent = '✕ Error al leer el archivo. Probá con otro.';
+    st.className = 'status err';
+  };
   reader.onload = function(e) {
     try {
       const data = new Uint8Array(e.target.result);
+      if (data.length === 0) {
+        st.textContent = '✕ El archivo está vacío.';
+        st.className = 'status err';
+        return;
+      }
       const workbook = XLSX.read(data, {type:'array'});
+      if (!workbook || !workbook.SheetNames || workbook.SheetNames.length === 0) {
+        st.textContent = '✕ No se encontraron hojas en el archivo.';
+        st.className = 'status err';
+        return;
+      }
 
       const stockMap = {};
       let totalRowCount = 0, matchedCount = 0;
@@ -206,7 +287,7 @@ function handleFile(event) {
         if (sheetMatched > 0) sheetsInfo.push(sname + ': ' + sheetMatched + ' locs');
       });
 
-      stockData = stockMap;
+      stockData = Object.keys(stockMap).length > 0 ? stockMap : {};
       if (Object.keys(stockData).length > 0) {
         st.textContent = '✓ ' + Object.keys(stockData).length + ' ubicaciones ocupadas. ' + sheetsInfo.join(' | ');
         st.className = 'status ok';
@@ -216,7 +297,7 @@ function handleFile(event) {
           : 'No se encontraron datos de ubicaciones. Verificá que el Excel tenga una columna "Ubicación".';
         st.className = 'status err';
       }
-      document.getElementById('btnLimpiar').disabled = false;
+      safeGetEl('btnLimpiar').disabled = false;
       refreshAll();
 
     } catch(err) {
@@ -232,10 +313,13 @@ function cargarEjemplo() {
   const sampleLocs = ['N2-C11','N2-C13','N2-E09','N2-F02','N2-F14','N2-C05','N2-E01','N2-F04','N2-F12','N2-B12','N2-B14','N2-B16','N2-H01','N2-H03','N2-H05','N2-H07','N2-H09','N2-H11','N2-H13','N2-H15','N2-G01','N2-G02','N2-G03','N2-G04','N2-G05','N2-G06','N2-G07','N2-G08','N2-G09','N2-G10','N2-G11','N2-G12','N2-G13','N2-G14','N1-A10','N2-A09','N2-J05','N2-J07','N2-M01','N2-M02','N2-M03','N2-M04','N2-M05','N2-I02','N2-I06'];
   stockData = {};
   sampleLocs.forEach(l => { stockData[l] = true; });
-  const st = document.getElementById('uploadStatus');
-  st.textContent = '✓ Ejemplo cargado: ' + sampleLocs.length + ' ubicaciones ocupadas (simulado)';
-  st.className = 'status ok';
-  document.getElementById('btnLimpiar').disabled = false;
+  const st = safeGetEl('uploadStatus');
+  if (st) {
+    st.textContent = '✓ Ejemplo cargado: ' + sampleLocs.length + ' ubicaciones ocupadas (simulado)';
+    st.className = 'status ok';
+  }
+  const btn = safeGetEl('btnLimpiar');
+  if (btn) btn.disabled = false;
   refreshAll();
 }
 
@@ -273,8 +357,8 @@ function renderMapa() {
     const nums = getNums(nave, letra);
     const isMoto = letra === 'M' && nave === 2;
     const odds = nums.filter(n => n%2===1), evens = nums.filter(n => n%2===0);
-    const pctInv = (zona.inv/zona.total*100).toFixed(0);
-    const pctOcc = zona.total > 0 ? ((zona.occ||0)/zona.total*100).toFixed(0) : 0;
+    const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
+    const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
 
     if (isMoto) {
       let h = '<div class="pasillo-block" style="min-width:140px;"><div class="pb-header"><span>M</span><span style="font-size:9px;color:#9aa0a6;font-weight:400;">Motos</span>';
@@ -343,12 +427,12 @@ function renderMapa() {
   nav1.forEach(l => { html += buildBlock(1, l); });
   html += '</div></div>';
 
-  document.getElementById('mapaDeposito').innerHTML = html;
+  safeHtml(safeGetEl('mapaDeposito'), html);
 
   const legendHtml = currentView === 'inv'
     ? '<span class="legend-item"><span class="legend-dot" style="background:#0f9d58;"></span> Inventariado</span><span class="legend-item"><span class="legend-dot" style="background:#ea4335;"></span> Pendiente</span><span class="legend-item"><span class="legend-dot" style="background:#cfd8dc;"></span> Vacío</span>'
     : '<span class="legend-item"><span class="legend-dot" style="background:#1565c0;"></span> Con Stock</span><span class="legend-item"><span class="legend-dot" style="background:#eeeeee;border:1px solid #e0e0e0;"></span> Vacío</span>';
-  document.getElementById('mapLegend').innerHTML = legendHtml;
+  safeHtml(safeGetEl('mapLegend'), legendHtml);
 }
 
 function refreshAll() {
@@ -361,25 +445,28 @@ function refreshAll() {
   const pend = total - inv;
   const occTot = zonas.reduce((s,z) => s + (z.occ||0), 0);
   const emptyTot = total - occTot;
-  const pctInv = (inv/total*100).toFixed(1);
-  const pctOcc = total > 0 ? (occTot/total*100).toFixed(1) : 0;
+  const pctInv = safePct(inv, total).toFixed(1);
+  const pctOcc = total > 0 ? safePct(occTot, total).toFixed(1) : 0;
 
-  document.getElementById('fecha').textContent = 'Actualizado: ' + new Date().toLocaleString('es-AR') + (Object.keys(stockData).length > 0 ? ' | Stock: ' + Object.keys(stockData).length + ' locs ocupadas' : '');
+  safeText(safeGetEl('fecha'), 'Actualizado: ' + new Date().toLocaleString('es-AR') + (Object.keys(stockData).length > 0 ? ' | Stock: ' + Object.keys(stockData).length + ' locs ocupadas' : ''));
 
-  if (currentView === 'inv') {
-    document.getElementById('kpiRow').innerHTML = [
-      {label:'Total Ubicaciones', v:total, c:'blue', s:'A inventariar'},
-      {label:'Inventariadas', v:inv, c:'green', s:'Completadas'},
-      {label:'Pendientes', v:pend, c:'orange', s:'Faltan '+pend},
-      {label:'Avance', v:pctInv+'%', c:'purple', s:'Progreso general'}
-    ].map(k => '<div class="kpi-card '+k.c+'"><div class="label">'+k.label+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>').join('');
-  } else {
-    document.getElementById('kpiRow').innerHTML = [
-      {label:'Total Ubicaciones', v:total, c:'blue', s:'En el depósito'},
-      {label:'Con Stock (ocupadas)', v:occTot, c:'teal', s:'Ubicaciones con producto'},
-      {label:'Vacías (disponibles)', v:emptyTot, c:'orange', s:'Ubicaciones libres'},
-      {label:'Ocupación', v:pctOcc+'%', c:'cyan', s:'del espacio ocupado'}
-    ].map(k => '<div class="kpi-card '+k.c+'"><div class="label">'+k.label+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>').join('');
+  const kpiEl = safeGetEl('kpiRow');
+  if (kpiEl) {
+    if (currentView === 'inv') {
+      kpiEl.innerHTML = [
+        {label:'Total Ubicaciones', v:total, c:'blue', s:'A inventariar'},
+        {label:'Inventariadas', v:inv, c:'green', s:'Completadas'},
+        {label:'Pendientes', v:pend, c:'orange', s:'Faltan '+pend},
+        {label:'Avance', v:pctInv+'%', c:'purple', s:'Progreso general'}
+      ].map(k => '<div class="kpi-card '+k.c+'"><div class="label">'+k.label+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>').join('');
+    } else {
+      kpiEl.innerHTML = [
+        {label:'Total Ubicaciones', v:total, c:'blue', s:'En el depósito'},
+        {label:'Con Stock (ocupadas)', v:occTot, c:'teal', s:'Ubicaciones con producto'},
+        {label:'Vacías (disponibles)', v:emptyTot, c:'orange', s:'Ubicaciones libres'},
+        {label:'Ocupación', v:pctOcc+'%', c:'cyan', s:'del espacio ocupado'}
+      ].map(k => '<div class="kpi-card '+k.c+'"><div class="label">'+k.label+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>').join('');
+    }
   }
 
   const sorted = [...zonas].sort((a,b) => a.name.localeCompare(b.name));
@@ -468,33 +555,37 @@ function refreshAll() {
   }
   } catch(e) { console.error('Chart error:', e); }
 
-  document.getElementById('chartGenTitle').textContent = currentView === 'inv' ? 'Progreso General' : 'Ocupación General';
-  document.getElementById('chartZonasTitle').textContent = currentView === 'inv' ? 'Avance por Zona' : 'Ocupación por Zona';
-  document.getElementById('chartBarTitle').textContent = currentView === 'inv' ? 'Completado vs Restante' : 'Ocupado vs Vacío';
-  document.getElementById('chartRankTitle').textContent = currentView === 'inv' ? 'Ranking de Avance por Zona' : 'Ranking de Ocupación por Zona';
-  document.getElementById('resumenTitle').textContent = currentView === 'inv' ? 'Resumen General' : 'Resumen Ocupación';
-  document.getElementById('detalleTitle').textContent = currentView === 'inv' ? 'Detalle por Zona' : 'Detalle Ocupación por Zona';
+  safeText(safeGetEl('chartGenTitle'), currentView === 'inv' ? 'Progreso General' : 'Ocupación General');
+  safeText(safeGetEl('chartZonasTitle'), currentView === 'inv' ? 'Avance por Zona' : 'Ocupación por Zona');
+  safeText(safeGetEl('chartBarTitle'), currentView === 'inv' ? 'Completado vs Restante' : 'Ocupado vs Vacío');
+  safeText(safeGetEl('chartRankTitle'), currentView === 'inv' ? 'Ranking de Avance por Zona' : 'Ranking de Ocupación por Zona');
+  safeText(safeGetEl('resumenTitle'), currentView === 'inv' ? 'Resumen General' : 'Resumen Ocupación');
+  safeText(safeGetEl('detalleTitle'), currentView === 'inv' ? 'Detalle por Zona' : 'Detalle Ocupación por Zona');
 
   const tHead = document.querySelector('#tablaZonas thead tr');
-  if (currentView === 'inv') {
-    tHead.innerHTML = '<th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Hecho</th><th style="text-align:center;padding:8px;color:#00796b;">Pend</th><th style="text-align:right;padding:8px;color:#00796b;">%</th>';
-  } else {
-    tHead.innerHTML = '<th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Ocupado</th><th style="text-align:center;padding:8px;color:#00796b;">Vacío</th><th style="text-align:right;padding:8px;color:#00796b;">% Ocup</th>';
+  if (tHead) {
+    if (currentView === 'inv') {
+      tHead.innerHTML = '<th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Hecho</th><th style="text-align:center;padding:8px;color:#00796b;">Pend</th><th style="text-align:right;padding:8px;color:#00796b;">%</th>';
+    } else {
+      tHead.innerHTML = '<th style="text-align:left;padding:8px;color:#00796b;">Zona</th><th style="text-align:center;padding:8px;color:#00796b;">Total</th><th style="text-align:center;padding:8px;color:#00796b;">Ocupado</th><th style="text-align:center;padding:8px;color:#00796b;">Vacío</th><th style="text-align:right;padding:8px;color:#00796b;">% Ocup</th>';
+    }
   }
 
-  const tbody = document.getElementById('tablaBody');
-  tbody.innerHTML = '';
-  [...zonas].sort((a,b) => a.name.localeCompare(b.name)).forEach(z => {
-    const pctZ = currentView === 'inv'
-      ? (z.total > 0 ? (z.inv/z.total*100).toFixed(0) : 0)
-      : (z.total > 0 ? ((z.occ||0)/z.total*100).toFixed(0) : 0);
-    const color = pctZ >= 100 ? '#0f9d58' : pctZ > 0 ? '#f9a825' : '#ea4335';
-    if (currentView === 'inv') {
-      tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#0f9d58;font-weight:600;">'+z.inv+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-z.inv > 0 ? '#ea4335' : '#0f9d58')+';">'+(z.total-z.inv)+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
-    } else {
-      tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#00796b;font-weight:600;">'+(z.occ||0)+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-(z.occ||0) > 0 ? '#78909c' : '#00796b')+';">'+(z.total-(z.occ||0))+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
-    }
-  });
+  const tbody = safeGetEl('tablaBody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    [...zonas].sort((a,b) => a.name.localeCompare(b.name)).forEach(z => {
+      const pctZ = currentView === 'inv'
+        ? (z.total > 0 ? safePct(z.inv, z.total).toFixed(0) : 0)
+        : (z.total > 0 ? safePct(z.occ||0, z.total).toFixed(0) : 0);
+      const color = pctZ >= 100 ? '#0f9d58' : pctZ > 0 ? '#f9a825' : '#ea4335';
+      if (currentView === 'inv') {
+        tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#0f9d58;font-weight:600;">'+z.inv+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-z.inv > 0 ? '#ea4335' : '#0f9d58')+';">'+(z.total-z.inv)+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
+      } else {
+        tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#00796b;font-weight:600;">'+(z.occ||0)+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-(z.occ||0) > 0 ? '#78909c' : '#00796b')+';">'+(z.total-(z.occ||0))+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
+      }
+    });
+  }
 
   const zonasCompletas = zonas.filter(z => {
     if (currentView === 'inv') return z.total === z.inv;
@@ -524,7 +615,7 @@ function refreshAll() {
   const datoHecho = currentView === 'inv' ? inv : occTot;
   const datoPend = currentView === 'inv' ? pend : emptyTot;
 
-  document.getElementById('resumenTable').innerHTML = `
+  safeHtml(safeGetEl('resumenTable'), `
 <table style="width:100%;border-collapse:collapse;">
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">Total ubicaciones</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;">${total}</td></tr>
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${labelHecho}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:${colorHecho};">${datoHecho}</td></tr>
@@ -533,23 +624,29 @@ function refreshAll() {
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas completas (100%)' : 'Zonas 100% ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#0f9d58;">${zonasCompletas}</td></tr>
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas sin empezar (0%)' : 'Zonas 0% ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#ea4335;">${zonasCero}</td></tr>
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas en progreso' : 'Zonas parcialmente ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#f9a825;">${zonasParcial}</td></tr>
-<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Mejor zona' : 'Zona más ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${mejorZona ? mejorZona.name+' ('+(currentView === 'inv' ? (mejorZona.inv/mejorZona.total*100) : ((mejorZona.occ||0)/mejorZona.total*100)).toFixed(0)+'%)' : '-'}</td></tr>
-<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Zona con menor avance' : 'Zona menos ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${peorZona ? peorZona.name+' ('+(currentView === 'inv' ? (peorZona.inv/peorZona.total*100) : ((peorZona.occ||0)/peorZona.total*100)).toFixed(0)+'%)' : '-'}</td></tr>
-</table>`;
+<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Mejor zona' : 'Zona más ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${mejorZona ? mejorZona.name+' ('+safePct(currentView === 'inv' ? mejorZona.inv : (mejorZona.occ||0), mejorZona.total).toFixed(0)+'%)' : '-'}</td></tr>
+<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Zona con menor avance' : 'Zona menos ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${peorZona ? peorZona.name+' ('+safePct(currentView === 'inv' ? peorZona.inv : (peorZona.occ||0), peorZona.total).toFixed(0)+'%)' : '-'}</td></tr>
+</table>`);
 
-  document.getElementById('zoneGridTitle').textContent = currentView === 'inv' ? 'Detalle por Zona (Tarjetas)' : 'Ocupación por Zona (Tarjetas)';
-  document.getElementById('zoneGrid').innerHTML = '';
-  [...zonas].sort((a,b) => a.name.localeCompare(b.name)).forEach(z => {
-    const p = currentView === 'inv' ? (z.total > 0 ? (z.inv/z.total*100).toFixed(0) : 0) : (z.total > 0 ? ((z.occ||0)/z.total*100).toFixed(0) : 0);
-    const v = currentView === 'inv' ? z.inv : (z.occ||0);
-    const fillClass = currentView === 'inv' ? '' : ' blue-grad';
-    document.getElementById('zoneGrid').innerHTML += '<div class="zone-card"><div class="z-name">'+z.name+'</div><div class="z-bar"><div class="z-fill'+fillClass+'" style="width:'+p+'%"></div></div><div class="z-text">'+(currentView === 'inv' ? '✅ '+v+'/'+z.total+' inventariados' : '📦 '+v+'/'+z.total+' ocupados')+' ('+p+'%)</div></div>';
-  });
+  safeText(safeGetEl('zoneGridTitle'), currentView === 'inv' ? 'Detalle por Zona (Tarjetas)' : 'Ocupación por Zona (Tarjetas)');
+  const zoneGridEl = safeGetEl('zoneGrid');
+  if (zoneGridEl) {
+    zoneGridEl.innerHTML = '';
+    [...zonas].sort((a,b) => a.name.localeCompare(b.name)).forEach(z => {
+      const p = z.total > 0 ? safePct(currentView === 'inv' ? z.inv : (z.occ||0), z.total).toFixed(0) : 0;
+      const v = currentView === 'inv' ? z.inv : (z.occ||0);
+      const fillClass = currentView === 'inv' ? '' : ' blue-grad';
+      zoneGridEl.innerHTML += '<div class="zone-card"><div class="z-name">'+z.name+'</div><div class="z-bar"><div class="z-fill'+fillClass+'" style="width:'+p+'%"></div></div><div class="z-text">'+(currentView === 'inv' ? '✅ '+v+'/'+z.total+' inventariados' : '📦 '+v+'/'+z.total+' ocupados')+' ('+p+'%)</div></div>';
+    });
+  }
 }
 
 if (typeof XLSX === 'undefined') {
-  document.getElementById('uploadStatus').textContent = '✕ La librería XLSX no cargó. Probá recargar la página o usar otro navegador.';
-  document.getElementById('uploadStatus').className = 'status err';
+  const st = safeGetEl('uploadStatus');
+  if (st) {
+    st.textContent = '✕ La librería XLSX no cargó. Probá recargar la página o usar otro navegador.';
+    st.className = 'status err';
+  }
 }
 renderMapa();
 initFromFirestore();
