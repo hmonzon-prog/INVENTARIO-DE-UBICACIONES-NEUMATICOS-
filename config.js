@@ -1,4 +1,4 @@
-const USUARIOS_CONFIG = [
+var USUARIOS_CONFIG = [
   {user: 'julian', pass: '4821', nombre: 'Julian'},
   {user: 'agustin', pass: '7392', nombre: 'Agustin Madrid'},
   {user: 'bruno', pass: '5164', nombre: 'Bruno Ayala'},
@@ -7,7 +7,7 @@ const USUARIOS_CONFIG = [
   {user: 'hernan', pass: '6385', nombre: 'Hernan'}
 ];
 
-const ZONAS_CONFIG = [
+var ZONAS_CONFIG = [
   {name:'N1-A', total:6},
   {name:'N1-B', total:12},
   {name:'N1-C', total:12},
@@ -26,7 +26,7 @@ const ZONAS_CONFIG = [
   {name:'N2-M', total:5}
 ];
 
-const LOCACIONES_CONFIG = {
+var LOCACIONES_CONFIG = {
   'N1-A02':0,'N1-A04':0,'N1-A06':0,'N1-A08':0,'N1-A10':1,'N1-A12':0,
   'N1-B01':0,'N1-B02':0,'N1-B03':0,'N1-B04':0,'N1-B05':0,'N1-B06':0,'N1-B07':0,'N1-B08':0,'N1-B09':0,'N1-B10':0,'N1-B11':0,'N1-B12':0,
   'N1-C01':0,'N1-C02':0,'N1-C03':0,'N1-C04':0,'N1-C05':0,'N1-C06':0,'N1-C07':0,'N1-C08':0,'N1-C09':0,'N1-C10':0,'N1-C11':0,'N1-C12':0,
