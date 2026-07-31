@@ -139,19 +139,6 @@ function setView(v) {
   refreshAll();
 }
 
-function safePct(val, total) {
-  if (!total || total === 0) return 0;
-  return (val / total * 100);
-}
-
-function safeText(el, text) {
-  if (el) el.textContent = text;
-}
-
-function safeHtml(el, html) {
-  if (el) el.innerHTML = html;
-}
-
 function limpiarStock() {
   stockData = {};
   const fileInput = safeGetEl('stockFile');
@@ -184,6 +171,26 @@ function normalizarLoc(loc) {
 
 function safeGetEl(id) {
   return document.getElementById(id);
+}
+
+function sanitize(str) {
+  if (typeof str !== 'string') return '';
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+function safePct(val, total) {
+  if (!total || total === 0) return 0;
+  return (val / total * 100);
+}
+
+function safeText(el, text) {
+  if (el) el.textContent = text;
+}
+
+function safeHtml(el, html) {
+  if (el) el.innerHTML = html;
 }
 
 function handleFile(event) {
@@ -377,7 +384,7 @@ function renderMapa() {
     const sideOdd = odds.length > 0;
     const correlative = nave === 1 && letra === 'E';
 
-    let h = '<div class="pasillo-block"><div class="pb-header"><span>'+letra+'</span>';
+    let h = '<div class="pasillo-block"><div class="pb-header"><span>'+sanitize(letra)+'</span>';
     if (currentView === 'inv') {
       h += '<span style="font-size:9px;color:#5f6368;font-weight:400;">'+zona.inv+'/'+zona.total+' ('+pctInv+'%)</span>';
     } else {
@@ -580,9 +587,9 @@ function refreshAll() {
         : (z.total > 0 ? safePct(z.occ||0, z.total).toFixed(0) : 0);
       const color = pctZ >= 100 ? '#0f9d58' : pctZ > 0 ? '#f9a825' : '#ea4335';
       if (currentView === 'inv') {
-        tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#0f9d58;font-weight:600;">'+z.inv+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-z.inv > 0 ? '#ea4335' : '#0f9d58')+';">'+(z.total-z.inv)+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
+        tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+sanitize(z.name)+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#0f9d58;font-weight:600;">'+z.inv+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-z.inv > 0 ? '#ea4335' : '#0f9d58')+';">'+(z.total-z.inv)+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
       } else {
-        tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+z.name+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#00796b;font-weight:600;">'+(z.occ||0)+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-(z.occ||0) > 0 ? '#78909c' : '#00796b')+';">'+(z.total-(z.occ||0))+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
+        tbody.innerHTML += '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:6px 8px;font-weight:600;">'+sanitize(z.name)+'</td><td style="padding:6px 8px;text-align:center;">'+z.total+'</td><td style="padding:6px 8px;text-align:center;color:#00796b;font-weight:600;">'+(z.occ||0)+'</td><td style="padding:6px 8px;text-align:center;color:'+(z.total-(z.occ||0) > 0 ? '#78909c' : '#00796b')+';">'+(z.total-(z.occ||0))+'</td><td style="padding:6px 8px;text-align:right;font-weight:700;color:'+color+';">'+pctZ+'%</td></tr>';
       }
     });
   }
@@ -624,8 +631,8 @@ function refreshAll() {
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas completas (100%)' : 'Zonas 100% ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#0f9d58;">${zonasCompletas}</td></tr>
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas sin empezar (0%)' : 'Zonas 0% ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#ea4335;">${zonasCero}</td></tr>
 <tr><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;color:#5f6368;">${currentView === 'inv' ? 'Zonas en progreso' : 'Zonas parcialmente ocupadas'}</td><td style="padding:6px 8px;border-bottom:1px solid #e8eaed;font-weight:700;text-align:right;color:#f9a825;">${zonasParcial}</td></tr>
-<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Mejor zona' : 'Zona más ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${mejorZona ? mejorZona.name+' ('+safePct(currentView === 'inv' ? mejorZona.inv : (mejorZona.occ||0), mejorZona.total).toFixed(0)+'%)' : '-'}</td></tr>
-<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Zona con menor avance' : 'Zona menos ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${peorZona ? peorZona.name+' ('+safePct(currentView === 'inv' ? peorZona.inv : (peorZona.occ||0), peorZona.total).toFixed(0)+'%)' : '-'}</td></tr>
+<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Mejor zona' : 'Zona más ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${mejorZona ? sanitize(mejorZona.name)+' ('+safePct(currentView === 'inv' ? mejorZona.inv : (mejorZona.occ||0), mejorZona.total).toFixed(0)+'%)' : '-'}</td></tr>
+<tr><td style="padding:6px 8px;color:#5f6368;">${currentView === 'inv' ? 'Zona con menor avance' : 'Zona menos ocupada'}</td><td style="padding:6px 8px;font-weight:700;text-align:right;">${peorZona ? sanitize(peorZona.name)+' ('+safePct(currentView === 'inv' ? peorZona.inv : (peorZona.occ||0), peorZona.total).toFixed(0)+'%)' : '-'}</td></tr>
 </table>`);
 
   safeText(safeGetEl('zoneGridTitle'), currentView === 'inv' ? 'Detalle por Zona (Tarjetas)' : 'Ocupación por Zona (Tarjetas)');
@@ -636,7 +643,7 @@ function refreshAll() {
       const p = z.total > 0 ? safePct(currentView === 'inv' ? z.inv : (z.occ||0), z.total).toFixed(0) : 0;
       const v = currentView === 'inv' ? z.inv : (z.occ||0);
       const fillClass = currentView === 'inv' ? '' : ' blue-grad';
-      zoneGridEl.innerHTML += '<div class="zone-card"><div class="z-name">'+z.name+'</div><div class="z-bar"><div class="z-fill'+fillClass+'" style="width:'+p+'%"></div></div><div class="z-text">'+(currentView === 'inv' ? '✅ '+v+'/'+z.total+' inventariados' : '📦 '+v+'/'+z.total+' ocupados')+' ('+p+'%)</div></div>';
+      zoneGridEl.innerHTML += '<div class="zone-card"><div class="z-name">'+sanitize(z.name)+'</div><div class="z-bar"><div class="z-fill'+fillClass+'" style="width:'+p+'%"></div></div><div class="z-text">'+(currentView === 'inv' ? '✅ '+v+'/'+z.total+' inventariados' : '📦 '+v+'/'+z.total+' ocupados')+' ('+p+'%)</div></div>';
     });
   }
 }
