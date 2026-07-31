@@ -3,7 +3,8 @@ const USUARIOS_CONFIG = [
   {user: 'agustin', pass: '7392', nombre: 'Agustin Madrid'},
   {user: 'bruno', pass: '5164', nombre: 'Bruno Ayala'},
   {user: 'juan', pass: '8037', nombre: 'Juan'},
-  {user: 'flor', pass: '2549', nombre: 'Flor'}
+  {user: 'flor', pass: '2549', nombre: 'Flor'},
+  {user: 'hernan', pass: '6385', nombre: 'Hernan'}
 ];
 
 const ZONAS_CONFIG = [
