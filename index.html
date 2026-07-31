@@ -17,7 +17,7 @@
   <div class="login-box">
     <h1>Inventario OB</h1>
     <p class="login-sub">Ocupación de Stock</p>
-    <form id="loginForm" onsubmit="return handleLogin(event)">
+    <form id="loginForm" onsubmit="handleLogin(event); return false;">
       <input type="text" id="loginUser" placeholder="Usuario" autocomplete="username" required>
       <input type="password" id="loginPass" placeholder="Clave" autocomplete="current-password" required>
       <span class="login-error" id="loginError"></span>

@@ -1,10 +1,17 @@
 let currentUser = null;
 
 function handleLogin(e) {
-  e.preventDefault();
-  const user = safeGetEl('loginUser').value.trim().toLowerCase();
-  const pass = safeGetEl('loginPass').value;
+  if (e) e.preventDefault();
+  const userEl = safeGetEl('loginUser');
+  const passEl = safeGetEl('loginPass');
   const errorEl = safeGetEl('loginError');
+  if (!userEl || !passEl || !errorEl) return false;
+  const user = userEl.value.trim().toLowerCase();
+  const pass = passEl.value;
+  if (!user || !pass) {
+    errorEl.textContent = 'Completá usuario y clave';
+    return false;
+  }
   const found = USUARIOS_CONFIG.find(u => u.user === user && u.pass === pass);
   if (found) {
     currentUser = found;
@@ -12,9 +19,10 @@ function handleLogin(e) {
     showApp();
   } else {
     errorEl.textContent = 'Usuario o clave incorrectos';
-    safeGetEl('loginPass').value = '';
-    safeGetEl('loginPass').focus();
+    passEl.value = '';
+    passEl.focus();
   }
+  return false;
 }
 
 function handleLogout() {
