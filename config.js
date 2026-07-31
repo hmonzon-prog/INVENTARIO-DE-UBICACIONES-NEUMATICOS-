@@ -1,7 +1,7 @@
 const USUARIOS_CONFIG = [
   {user: 'julian', pass: '4821', nombre: 'Julian'},
   {user: 'agustin', pass: '7392', nombre: 'Agustin Madrid'},
-  {user: 'aruno', pass: '5164', nombre: 'Aruno Ayala'},
+  {user: 'bruno', pass: '5164', nombre: 'Bruno Ayala'},
   {user: 'juan', pass: '8037', nombre: 'Juan'},
   {user: 'flor', pass: '2549', nombre: 'Flor'}
 ];
