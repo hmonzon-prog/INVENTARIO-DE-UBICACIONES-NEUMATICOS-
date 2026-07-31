@@ -49,3 +49,13 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50;
 .zone-card .z-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0f9d58, #7bc86b); transition: width 1s ease; }
 .zone-card .z-fill.blue-grad { background: linear-gradient(90deg, #00796b, #4db6ac); }
 .zone-card .z-text { font-size: 11px; color: #5f6368; }
+
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: toastIn 0.3s ease; max-width: 360px; }
+.toast.info { background: #1a73e8; }
+.toast.success { background: #0f9d58; }
+.toast.warning { background: #f9a825; color: #2c3e50; }
+.toast.error { background: #c62828; }
+.toast.fadeOut { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }

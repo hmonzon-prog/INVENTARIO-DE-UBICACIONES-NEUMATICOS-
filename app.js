@@ -26,10 +26,14 @@ function saveData() {
     localStorage.setItem('obInvData', JSON.stringify(invData));
   } catch(e) {
     console.error('localStorage write error:', e);
+    showToast('No se pudieron guardar los datos localmente. El almacenamiento está lleno.', 'error');
   }
   if (db) {
     db.collection('inventario').doc('ubicaciones').set({ data: invData }, { merge: true })
-      .catch(err => console.error('Firestore write error:', err));
+      .catch(err => {
+        console.error('Firestore write error:', err);
+        showToast('Error al sincronizar con el servidor. Los datos se guardan localmente.', 'warning', 4000);
+      });
   }
 }
 let unsubscribe = null;
@@ -51,6 +55,9 @@ function startFirestoreListener() {
     }
   }, (error) => {
     console.error('Firestore listener error:', error);
+    if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
+      showToast('Conexión lenta con el servidor. Los cambios se guardan localmente.', 'warning', 5000);
+    }
   });
 }
 function safeLoadFromStorage(saved) {
@@ -96,11 +103,13 @@ async function initFromFirestore() {
       }
     }
   } catch (err) {
-    console.error('Firestore init error, using localStorage:', err);
+    console.error('Firestore init error:', err);
+    showToast('No se pudo conectar al servidor. Trabajando sin conexión.', 'warning');
     try {
       const loaded = safeLoadFromStorage(localStorage.getItem('obInvData'));
       if (loaded) {
         for (const k in loaded) invData[k] = loaded[k];
+        showToast('Datos cargados desde almacenamiento local.', 'info', 3000);
       }
     } catch(e) {
       console.error('localStorage fallback error:', e);
@@ -191,6 +200,19 @@ function safeText(el, text) {
 
 function safeHtml(el, html) {
   if (el) el.innerHTML = html;
+}
+
+function showToast(msg, type = 'info', duration = 4000) {
+  const container = safeGetEl('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('fadeOut');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
 }
 
 function handleFile(event) {
@@ -298,19 +320,30 @@ function handleFile(event) {
       if (Object.keys(stockData).length > 0) {
         st.textContent = '✓ ' + Object.keys(stockData).length + ' ubicaciones ocupadas. ' + sheetsInfo.join(' | ');
         st.className = 'status ok';
+        showToast(Object.keys(stockData).length + ' ubicaciones cargadas correctamente.', 'success', 3000);
       } else {
         st.textContent = totalRowCount > 0
           ? 'Se leyeron ' + totalRowCount + ' filas pero ninguna ubicación coincide con el layout. Revisá el formato (ej: N2-G14, N1-A02).'
           : 'No se encontraron datos de ubicaciones. Verificá que el Excel tenga una columna "Ubicación".';
         st.className = 'status err';
+        showToast('No se encontraron ubicaciones válidas en el archivo.', 'error');
       }
       safeGetEl('btnLimpiar').disabled = false;
       refreshAll();
 
     } catch(err) {
-      st.textContent = 'Error al leer: ' + err.message + ' (revisá la consola F12)';
+      console.error('Excel parse error:', err);
+      let errorMsg = 'Error al leer el archivo.';
+      if (err.message && err.message.includes('Cannot read')) {
+        errorMsg += ' El archivo parece estar dañado. Exportalo de nuevo.';
+      } else if (err.message && err.message.includes('Unsupported')) {
+        errorMsg += ' Formato no soportado. Usá .xlsx o .xls.';
+      } else {
+        errorMsg += ' Verificá que sea un archivo de Excel válido.';
+      }
+      st.textContent = errorMsg;
       st.className = 'status err';
-      console.error(err);
+      showToast(errorMsg, 'error', 5000);
     }
   };
   reader.readAsArrayBuffer(file);
@@ -655,5 +688,13 @@ if (typeof XLSX === 'undefined') {
     st.className = 'status err';
   }
 }
+
+window.addEventListener('online', () => {
+  showToast('Conexión restablecida. Sincronizando datos...', 'success', 3000);
+});
+window.addEventListener('offline', () => {
+  showToast('Sin conexión a internet. Los cambios se guardan localmente.', 'warning', 5000);
+});
+
 renderMapa();
 initFromFirestore();
