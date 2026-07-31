@@ -1,3 +1,10 @@
+const USUARIOS_CONFIG = [
+  {user: 'admin', pass: 'admin123', nombre: 'Administrador'},
+  {user: 'carlos', pass: '1234', nombre: 'Carlos'},
+  {user: 'maria', pass: '1234', nombre: 'María'},
+  {user: 'pedro', pass: '1234', nombre: 'Pedro'}
+];
+
 const ZONAS_CONFIG = [
   {name:'N1-A', total:6},
   {name:'N1-B', total:12},

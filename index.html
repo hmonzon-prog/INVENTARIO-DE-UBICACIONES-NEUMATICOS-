@@ -12,9 +12,30 @@
 </head>
 <body>
 <div class="toast-container" id="toastContainer"></div>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>Inventario OB</h1>
+    <p class="login-sub">Ocupación de Stock</p>
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <input type="text" id="loginUser" placeholder="Usuario" autocomplete="username" required>
+      <input type="password" id="loginPass" placeholder="Clave" autocomplete="current-password" required>
+      <span class="login-error" id="loginError"></span>
+      <button type="submit" class="btn login-btn">Ingresar</button>
+    </form>
+  </div>
+</div>
+
+<div class="app-main" id="appMain" style="display:none;">
 <div class="header">
-<h1>Inventario OB — Ocupación de Stock</h1>
-<div class="sub" id="fecha"></div>
+  <div class="header-top">
+    <h1>Inventario OB — Ocupación de Stock</h1>
+    <div class="user-info">
+      <span id="currentUser"></span>
+      <button class="btn btn-logout" onclick="handleLogout()">Salir</button>
+    </div>
+  </div>
+  <div class="sub" id="fecha"></div>
 </div>
 
 <div class="upload-bar">
@@ -61,6 +82,7 @@
 
 <h3 style="color:#00796b;font-size:14px;margin-bottom:12px;" id="zoneGridTitle">Detalle por Zona (Tarjetas)</h3>
 <div class="zone-grid" id="zoneGrid"></div>
+</div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>

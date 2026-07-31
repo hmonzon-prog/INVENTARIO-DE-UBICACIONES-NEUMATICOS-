@@ -1,3 +1,56 @@
+let currentUser = null;
+
+function handleLogin(e) {
+  e.preventDefault();
+  const user = safeGetEl('loginUser').value.trim().toLowerCase();
+  const pass = safeGetEl('loginPass').value;
+  const errorEl = safeGetEl('loginError');
+  const found = USUARIOS_CONFIG.find(u => u.user === user && u.pass === pass);
+  if (found) {
+    currentUser = found;
+    localStorage.setItem('obInvUser', JSON.stringify(found));
+    showApp();
+  } else {
+    errorEl.textContent = 'Usuario o clave incorrectos';
+    safeGetEl('loginPass').value = '';
+    safeGetEl('loginPass').focus();
+  }
+}
+
+function handleLogout() {
+  currentUser = null;
+  localStorage.removeItem('obInvUser');
+  safeGetEl('loginScreen').style.display = 'flex';
+  safeGetEl('appMain').style.display = 'none';
+  safeGetEl('loginUser').value = '';
+  safeGetEl('loginPass').value = '';
+  safeGetEl('loginError').textContent = '';
+}
+
+function showApp() {
+  safeGetEl('loginScreen').style.display = 'none';
+  safeGetEl('appMain').style.display = 'block';
+  safeText(safeGetEl('currentUser'), '👤 ' + currentUser.nombre);
+  renderMapa();
+  initFromFirestore();
+}
+
+function checkSession() {
+  try {
+    const saved = localStorage.getItem('obInvUser');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.user && parsed.nombre) {
+        currentUser = parsed;
+        showApp();
+        return;
+      }
+    }
+  } catch(e) {}
+  safeGetEl('loginScreen').style.display = 'flex';
+  safeGetEl('appMain').style.display = 'none';
+}
+
 const zonas = ZONAS_CONFIG.map(z => ({...z, inv: 0, occ: 0}));
 const invData = {...LOCACIONES_CONFIG};
 
@@ -24,6 +77,7 @@ try {
 function saveData() {
   try {
     localStorage.setItem('obInvData', JSON.stringify(invData));
+    localStorage.setItem('obInvLog', JSON.stringify(changeLog));
   } catch(e) {
     console.error('localStorage write error:', e);
     showToast('No se pudieron guardar los datos localmente. El almacenamiento está lleno.', 'error');
@@ -34,6 +88,8 @@ function saveData() {
         console.error('Firestore write error:', err);
         showToast('Error al sincronizar con el servidor. Los datos se guardan localmente.', 'warning', 4000);
       });
+    db.collection('inventario').doc('log').set({ data: changeLog.slice(-200) }, { merge: true })
+      .catch(err => console.error('Log write error:', err));
   }
 }
 let unsubscribe = null;
@@ -96,11 +152,19 @@ async function initFromFirestore() {
       } else {
         await docRef.set({ data: invData });
       }
+      const logDoc = await db.collection('inventario').doc('log').get();
+      if (logDoc.exists && logDoc.data().data) {
+        changeLog = logDoc.data().data;
+      }
     } else {
       const loaded = safeLoadFromStorage(localStorage.getItem('obInvData'));
       if (loaded) {
         for (const k in loaded) invData[k] = loaded[k];
       }
+      try {
+        const savedLog = localStorage.getItem('obInvLog');
+        if (savedLog) changeLog = JSON.parse(savedLog);
+      } catch(e) {}
     }
   } catch (err) {
     console.error('Firestore init error:', err);
@@ -111,6 +175,8 @@ async function initFromFirestore() {
         for (const k in loaded) invData[k] = loaded[k];
         showToast('Datos cargados desde almacenamiento local.', 'info', 3000);
       }
+      const savedLog = localStorage.getItem('obInvLog');
+      if (savedLog) changeLog = JSON.parse(savedLog);
     } catch(e) {
       console.error('localStorage fallback error:', e);
     }
@@ -118,10 +184,23 @@ async function initFromFirestore() {
   startFirestoreListener();
   refreshAll();
 }
+let changeLog = [];
+
 function toggleLoc(key) {
   try {
     if (!(key in invData)) return;
-    invData[key] = invData[key] === 1 ? 0 : 1;
+    if (!currentUser) {
+      showToast('Tenés que estar logueado para hacer cambios.', 'error');
+      return;
+    }
+    const oldVal = invData[key];
+    invData[key] = oldVal === 1 ? 0 : 1;
+    changeLog.push({
+      ubicacion: key,
+      accion: invData[key] === 1 ? 'marcada' : 'desmarcada',
+      usuario: currentUser.nombre,
+      fecha: new Date().toISOString()
+    });
     saveData();
     refreshAll();
   } catch(e) { console.error('toggleLoc error:', e); }
@@ -696,5 +775,4 @@ window.addEventListener('offline', () => {
   showToast('Sin conexión a internet. Los cambios se guardan localmente.', 'warning', 5000);
 });
 
-renderMapa();
-initFromFirestore();
+checkSession();
