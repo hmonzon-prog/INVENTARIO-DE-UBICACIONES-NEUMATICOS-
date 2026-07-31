@@ -475,65 +475,6 @@ function calcOcupacion() {
 }
 
 function renderMapa() {
-  const nav1 = ['A','B','C','D','E'];
-  const nav2 = ['A','B','C','D','E','F','G','H','I','J','M'];
-
-  function buildBlock(nave, letra) {
-    const zona = zonas.find(z => z.name === 'N'+nave+'-'+letra);
-    if (!zona) return '';
-    const nums = getNums(nave, letra);
-    const isMoto = letra === 'M' && nave === 2;
-    const odds = nums.filter(n => n%2===1), evens = nums.filter(n => n%2===0);
-    const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
-    const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
-
-    if (isMoto) {
-      let h = '<div class="pasillo-block" style="min-width:140px;"><div class="pb-header"><span>M</span><span style="font-size:9px;color:#9aa0a6;font-weight:400;">Motos</span>';
-      h += '<span style="font-size:9px;color:#5f6368;font-weight:400;margin-left:auto;display:flex;gap:4px;"><span title="Inventario">✅'+pctInv+'%</span><span title="Ocupacion">📦'+pctOcc+'%</span></span></div><div style="display:flex;gap:2px;flex-wrap:wrap;">';
-      nums.forEach(n => {
-        const s = getStatus(nave, letra, n);
-        const occ = hasStock(nave, letra, n);
-        const colors = getDotColors(s, occ);
-        h += '<div class="rack-dot" data-loc="N2-M'+('0'+n).slice(-2)+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
-      });
-      h += '</div></div>';
-      return h;
-    }
-
-    const sideEven = evens.length > 0;
-    const sideOdd = odds.length > 0;
-    const correlative = nave === 1 && letra === 'E';
-
-    let h = '<div class="pasillo-block"><div class="pb-header"><span>'+sanitize(letra)+'</span>';
-    if (currentView === 'inv') {
-      h += '<span style="font-size:9px;color:#5f6368;font-weight:400;">'+zona.inv+'/'+zona.total+' ('+pctInv+'%)</span>';
-    } else {
-      h += '<span style="font-size:9px;color:#5f6368;font-weight:400;">'+(zona.occ||0)+'/'+zona.total+' ocup ('+pctOcc+'%)</span>';
-    }
-    h += '<span style="font-size:9px;color:#9aa0a6;font-weight:400;margin-left:auto;display:flex;gap:4px;"><span title="Avance inv">✅'+pctInv+'%</span><span title="Ocupacion">📦'+pctOcc+'%</span></span></div>';
-
-    function renderDots(arr) {
-      let out = '';
-      arr.forEach(n => {
-        const s = getStatus(nave, letra, n);
-        const occ = hasStock(nave, letra, n);
-        const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
-        const colors = getDotColors(s, occ);
-        out += '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
-      });
-      return out;
-    }
-
-    if (correlative) {
-      h += '<div class="pb-side">' + renderDots(nums) + '</div>';
-    } else {
-      if (sideEven) h += '<div class="pb-side"><span class="pb-side-label">P</span>' + renderDots(evens) + '</div>';
-      if (sideOdd) h += '<div class="pb-side"><span class="pb-side-label">I</span>' + renderDots(odds) + '</div>';
-    }
-    h += '</div>';
-    return h;
-  }
-
   function getDotColors(invStatus, hasStockFlag) {
     if (currentView === 'inv') {
       if (invStatus === 1) return {bg:'#0f9d58', fg:'#fff', border:'#0f9d58'};
@@ -545,14 +486,77 @@ function renderMapa() {
     }
   }
 
-  const colorN1 = 'background:#e0f2f1;color:#00796b;', colorN2 = 'background:#f3e5f5;color:#7b1fa2;';
-  let html = '<div class="nave-section"><div class="nave-section-title" style="'+colorN2+'">Nave 2</div>';
-  html += '<div class="map-grid" style="margin-bottom:6px;">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
-  html += '<div class="map-grid" style="margin-bottom:6px;">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
-  html += '<div class="map-grid">' + buildBlock(2, 'M') + '</div></div>';
-  html += '<div class="nave-section"><div class="nave-section-title" style="'+colorN1+'">Nave 1</div><div class="map-grid">';
-  nav1.forEach(l => { html += buildBlock(1, l); });
-  html += '</div></div>';
+  function renderDots(nave, letra, arr) {
+    let out = '';
+    arr.forEach(n => {
+      const s = getStatus(nave, letra, n);
+      const occ = hasStock(nave, letra, n);
+      const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
+      const colors = getDotColors(s, occ);
+      out += '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
+    });
+    return out;
+  }
+
+  function buildBlock(nave, letra) {
+    const zona = zonas.find(z => z.name === 'N'+nave+'-'+letra);
+    if (!zona) return '';
+    const nums = getNums(nave, letra);
+    const odds = nums.filter(n => n%2===1).sort((a,b)=>a-b);
+    const evens = nums.filter(n => n%2===0).sort((a,b)=>a-b);
+    const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
+    const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
+    const correlative = nave === 1 && letra === 'E';
+
+    let h = '<div class="pasillo-block"><div class="pb-header">';
+    h += '<span style="font-size:9px;color:#9aa0a6;">✅'+pctInv+'%</span>';
+    h += '<strong>'+sanitize(letra)+'</strong>';
+    h += '<span style="font-size:9px;color:#9aa0a6;">📦'+pctOcc+'%</span>';
+    h += '</div>';
+
+    if (correlative) {
+      h += '<div class="pb-side" style="justify-content:center;">' + renderDots(nave, letra, nums) + '</div>';
+    } else {
+      h += '<div class="pb-side"><span class="pb-side-label">P</span>' + renderDots(nave, letra, evens) + '</div>';
+      h += '<div class="pb-side"><span class="pb-side-label">I</span>' + renderDots(nave, letra, odds) + '</div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function buildMotos() {
+    const zona = zonas.find(z => z.name === 'N2-M');
+    if (!zona) return '';
+    const nums = getNums(2, 'M');
+    const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
+    const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
+
+    let h = '<div class="motos-row"><span class="motos-label">🏍️ Motos</span>';
+    nums.forEach(n => {
+      const s = getStatus(2, 'M', n);
+      const occ = hasStock(2, 'M', n);
+      const loc = 'N2-M'+('0'+n).slice(-2);
+      const colors = getDotColors(s, occ);
+      h += '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
+    });
+    h += '<span style="font-size:9px;color:#9aa0a6;margin-left:6px;">✅'+pctInv+'% 📦'+pctOcc+'%</span></div>';
+    return h;
+  }
+
+  let html = '';
+
+  html += '<div class="nave-section">';
+  html += '<div class="nave-section-title" style="background:#f3e5f5;color:#7b1fa2;">Nave 2</div>';
+  html += '<div class="nave-row">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += buildMotos();
+  html += '<div class="nave-row">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '</div>';
+
+  html += '<div class="nave-section">';
+  html += '<div class="nave-section-title" style="background:#e0f2f1;color:#00796b;">Nave 1</div>';
+  html += '<div class="nave-row">' + ['A','B','C','D'].map(l => buildBlock(1, l)).join('') + '</div>';
+  html += '<div class="nave-row" style="justify-content:center;">' + buildBlock(1, 'E') + '</div>';
+  html += '</div>';
 
   safeHtml(safeGetEl('mapaDeposito'), html);
 
