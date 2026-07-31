@@ -486,18 +486,6 @@ function renderMapa() {
     }
   }
 
-  function renderDots(nave, letra, arr) {
-    let out = '';
-    arr.forEach(n => {
-      const s = getStatus(nave, letra, n);
-      const occ = hasStock(nave, letra, n);
-      const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
-      const colors = getDotColors(s, occ);
-      out += '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
-    });
-    return out;
-  }
-
   function buildBlock(nave, letra) {
     const zona = zonas.find(z => z.name === 'N'+nave+'-'+letra);
     if (!zona) return '';
@@ -508,20 +496,40 @@ function renderMapa() {
     const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
     const correlative = nave === 1 && letra === 'E';
 
-    let h = '<div class="pasillo-block"><div class="pb-header">';
-    h += '<span style="font-size:9px;color:#9aa0a6;">✅'+pctInv+'%</span>';
+    let h = '<div class="pasillo-block-vertical">';
+    h += '<div class="pb-header">';
     h += '<strong>'+sanitize(letra)+'</strong>';
-    h += '<span style="font-size:9px;color:#9aa0a6;">📦'+pctOcc+'%</span>';
+    h += '<span style="font-size:8px;display:block;">✅'+pctInv+'% 📦'+pctOcc+'%</span>';
     h += '</div>';
 
     if (correlative) {
-      h += '<div class="pb-side" style="justify-content:center;">' + renderDots(nave, letra, nums) + '</div>';
+      h += '<div class="pb-col">';
+      [...nums].sort((a,b)=>a-b).forEach(n => {
+        h += renderDot(nave, letra, n);
+      });
+      h += '</div>';
     } else {
-      h += '<div class="pb-side"><span class="pb-side-label">P</span>' + renderDots(nave, letra, evens) + '</div>';
-      h += '<div class="pb-side"><span class="pb-side-label">I</span>' + renderDots(nave, letra, odds) + '</div>';
+      h += '<div class="pb-two-col">';
+      h += '<div class="pb-col">';
+      h += '<span class="pb-col-label">I</span>';
+      odds.forEach(n => { h += renderDot(nave, letra, n); });
+      h += '</div>';
+      h += '<div class="pb-col">';
+      h += '<span class="pb-col-label">P</span>';
+      evens.forEach(n => { h += renderDot(nave, letra, n); });
+      h += '</div>';
+      h += '</div>';
     }
     h += '</div>';
     return h;
+  }
+
+  function renderDot(nave, letra, n) {
+    const s = getStatus(nave, letra, n);
+    const occ = hasStock(nave, letra, n);
+    const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
+    const colors = getDotColors(s, occ);
+    return '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
   }
 
   function buildMotos() {
