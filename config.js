@@ -1,8 +1,9 @@
 const USUARIOS_CONFIG = [
-  {user: 'admin', pass: 'admin123', nombre: 'Administrador'},
-  {user: 'carlos', pass: '1234', nombre: 'Carlos'},
-  {user: 'maria', pass: '1234', nombre: 'María'},
-  {user: 'pedro', pass: '1234', nombre: 'Pedro'}
+  {user: 'julian', pass: '4821', nombre: 'Julian'},
+  {user: 'agustin', pass: '7392', nombre: 'Agustin Madrid'},
+  {user: 'aruno', pass: '5164', nombre: 'Aruno Ayala'},
+  {user: 'juan', pass: '8037', nombre: 'Juan'},
+  {user: 'flor', pass: '2549', nombre: 'Flor'}
 ];
 
 const ZONAS_CONFIG = [
