@@ -505,6 +505,7 @@ function renderMapa() {
     h += '<div class="pb-col">';
     odds.forEach(n => { h += renderDot(nave, 'F', n, 'right'); });
     h += '</div>';
+    h += '<div class="pasillo-line"></div>';
     h += '<div class="pb-col">';
     evens.forEach(n => { h += renderDot(nave, 'F', n, 'left'); });
     h += '</div>';
@@ -522,6 +523,7 @@ function renderMapa() {
     h += '<div class="pb-col">';
     odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
     h += '</div>';
+    h += '<div class="pasillo-line"></div>';
     h += '<div class="pb-col">';
     evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
     h += '</div>';
