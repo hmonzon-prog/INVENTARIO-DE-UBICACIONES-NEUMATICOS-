@@ -64,10 +64,10 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50;
 .pb-two-col { display: flex; gap: 2px; }
 .pb-col { display: flex; flex-direction: column; gap: 1px; align-items: center; }
 .pb-col-label { font-size: 8px; color: #9aa0a6; font-weight: 700; margin-bottom: 1px; }
-.rack-cell { display: flex; flex-direction: column; align-items: center; cursor: pointer; margin: 1px 0; }
-.rack-label { font-size: 7px; color: #5f6368; font-weight: 600; margin-bottom: 1px; }
-.rack-pies { display: flex; flex-direction: column; gap: 1px; }
-.rack-dot-small { width: 14px; height: 10px; border-radius: 1px; }
+.rack-cell { display: flex; flex-direction: row; align-items: center; cursor: pointer; margin: 1px 0; gap: 1px; }
+.rack-label { font-size: 7px; color: #5f6368; font-weight: 600; margin-right: 2px; }
+.rack-pies { display: flex; flex-direction: row; gap: 1px; }
+.rack-dot-small { width: 10px; height: 10px; border-radius: 1px; }
 .rack-dot { width: 18px; height: 18px; border-radius: 2px; font-size: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); }
 .motos-row { display: flex; gap: 3px; margin: 6px 0; justify-content: center; flex-wrap: wrap; }
 .motos-label { font-size: 10px; color: #5f6368; font-weight: 600; margin-right: 6px; display: flex; align-items: center; }
