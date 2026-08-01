@@ -63,11 +63,11 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50;
 .pasillo-block-vertical .pb-header { font-size: 11px; font-weight: 700; color: #00796b; margin-bottom: 4px; text-align: center; }
 .pb-with-calle { display: flex; flex-direction: row; align-items: stretch; gap: 0; }
 .pb-col { display: flex; flex-direction: column; gap: 1px; align-items: center; }
-.calle-line { width: 3px; background: #333; margin: 0 2px; align-self: stretch; }
-.rack-cell { display: flex; flex-direction: row; align-items: center; cursor: pointer; margin: 0; gap: 2px; }
+.calle-line { width: 3px; background: #333; margin: 0 1px; align-self: stretch; }
+.rack-cell { display: flex; flex-direction: row; align-items: center; cursor: pointer; margin: 0; gap: 1px; }
 .rack-label { font-size: 8px; color: #d32f2f; font-weight: 700; width: 14px; text-align: center; }
 .rack-pies { display: flex; flex-direction: row; gap: 1px; }
-.rack-dot-small { width: 12px; height: 12px; border-radius: 1px; }
+.rack-dot-small { width: 10px; height: 12px; border-radius: 1px; }
 .rack-dot { width: 18px; height: 18px; border-radius: 2px; font-size: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); }
 .motos-row { display: flex; gap: 3px; margin: 6px 0; justify-content: center; flex-wrap: wrap; background: #fff; border-radius: 6px; padding: 8px; border: 1px solid #bdbdbd; }
 .motos-label { font-size: 10px; color: #5f6368; font-weight: 600; margin-right: 6px; display: flex; align-items: center; }

@@ -511,6 +511,7 @@ function renderMapa() {
     h += '<strong>'+sanitize(letra)+'</strong>';
     h += '<span style="font-size:8px;display:block;">✅'+pctInv+'% 📦'+pctOcc+'%</span>';
     h += '</div>';
+    h += '<div class="pb-with-calle">';
 
     if (correlative) {
       h += '<div class="pb-col">';
@@ -523,7 +524,6 @@ function renderMapa() {
       evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
       h += '</div>';
     } else {
-      h += '<div class="pb-with-calle">';
       h += '<div class="pb-col">';
       evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
       h += '</div>';
@@ -531,9 +531,8 @@ function renderMapa() {
       h += '<div class="pb-col">';
       odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
       h += '</div>';
-      h += '</div>';
     }
-    h += '</div>';
+    h += '</div></div>';
     return h;
   }
 
