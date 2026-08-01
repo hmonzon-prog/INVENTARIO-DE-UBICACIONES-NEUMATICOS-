@@ -560,13 +560,23 @@ function renderMapa() {
       evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
       h += '</div>';
     } else {
-      h += '<div class="pb-col">';
-      evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
-      h += '</div>';
-      h += '<div class="calle-line"></div>';
-      h += '<div class="pb-col">';
-      odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
-      h += '</div>';
+      if (nave === 2 && letra === 'A') {
+        h += '<div class="pb-col">';
+        odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
+        h += '</div>';
+        h += '<div class="pasillo-line"></div>';
+        h += '<div class="pb-col">';
+        evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
+        h += '</div>';
+      } else {
+        h += '<div class="pb-col">';
+        odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
+        h += '</div>';
+        h += '<div class="calle-line"></div>';
+        h += '<div class="pb-col">';
+        evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
+        h += '</div>';
+      }
     }
     h += '</div></div>';
     return h;
@@ -674,7 +684,7 @@ function renderMapa() {
   const nave1Bottom = safeGetEl('nave1Bottom');
 
   if (nave2Top) nave2Top.innerHTML = buildBloqueF(2) + ['G','H','I','J'].map(l => buildBloqueParImpar(l, 2)).join('');
-  if (nave2Bottom) nave2Bottom.innerHTML = buildBlock(2, 'A') + '<div class="pasillo-line"></div>';
+  if (nave2Bottom) nave2Bottom.innerHTML = buildBlock(2, 'A');
   if (nave1Top) nave1Top.innerHTML = '';
   if (nave1Bottom) nave1Bottom.innerHTML = '';
 
