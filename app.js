@@ -532,6 +532,39 @@ function renderMapa() {
     return h;
   }
 
+  function buildPairFG() {
+    const numsF = getNums(2, 'F');
+    const numsG = getNums(2, 'G');
+    const evensF = numsF.filter(n => n%2===0).sort((a,b)=>b-a);
+    const oddsG = numsG.filter(n => n%2===1).sort((a,b)=>b-a);
+    const zonaF = zonas.find(z => z.name === 'N2-F');
+    const zonaG = zonas.find(z => z.name === 'N2-G');
+    const pctInvF = zonaF && zonaF.total > 0 ? safePct(zonaF.inv, zonaF.total).toFixed(0) : 0;
+    const pctOccF = zonaF && zonaF.total > 0 ? safePct(zonaF.occ||0, zonaF.total).toFixed(0) : 0;
+    const pctInvG = zonaG && zonaG.total > 0 ? safePct(zonaG.inv, zonaG.total).toFixed(0) : 0;
+    const pctOccG = zonaG && zonaG.total > 0 ? safePct(zonaG.occ||0, zonaG.total).toFixed(0) : 0;
+
+    let h = '<div class="pasillo-block-vertical">';
+    h += '<div class="pb-header">';
+    h += '<strong>F</strong>';
+    h += '<span style="font-size:7px;">✅'+pctInvF+'% 📦'+pctOccF+'%</span>';
+    h += ' — ';
+    h += '<strong>G</strong>';
+    h += '<span style="font-size:7px;">✅'+pctInvG+'% 📦'+pctOccG+'%</span>';
+    h += '</div>';
+    h += '<div class="pb-with-calle">';
+    h += '<div class="pb-col">';
+    evensF.forEach(n => { h += renderDot(2, 'F', n, 'left'); });
+    h += '</div>';
+    h += '<div class="calle-line"></div>';
+    h += '<div class="pb-col">';
+    oddsG.forEach(n => { h += renderDot(2, 'G', n, 'right'); });
+    h += '</div>';
+    h += '</div>';
+    h += '</div>';
+    return h;
+  }
+
   function renderDot(nave, letra, n, labelSide) {
     const s = getStatus(nave, letra, n);
     const occ = hasStock(nave, letra, n);
@@ -581,7 +614,7 @@ function renderMapa() {
 
   html += '<div class="nave-section">';
   html += '<div class="nave-section-title" style="background:#f3e5f5;color:#7b1fa2;">Nave 2</div>';
-  html += '<div class="nave-row">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '<div class="nave-row">' + buildPairFG() + buildBlock(2, 'H') + buildBlock(2, 'I') + buildBlock(2, 'J') + '</div>';
   html += buildMotos();
   html += '<div class="nave-row">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
   html += '</div>';
