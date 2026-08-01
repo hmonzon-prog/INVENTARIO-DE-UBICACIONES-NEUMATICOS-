@@ -651,9 +651,9 @@ function renderMapa() {
     const colors = getDotColors(s, occ);
     const pies = (typeof PIES_RACKS_CONFIG !== 'undefined' && PIES_RACKS_CONFIG[loc]) || 1;
     const lastMark = getLastMark(loc);
-    const tooltip = lastMark
+    const tooltip = (lastMark && s === 1)
       ? 'Inventariado por: ' + lastMark.usuario + ' | Fecha: ' + new Date(lastMark.fecha).toLocaleString('es-AR')
-      : 'Sin inventariar';
+      : (s === 1 ? 'Inventariado' : 'Pendiente');
     let html = '<div class="rack-cell" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" title="'+tooltip+'">';
     if (labelSide === 'left') {
       html += '<div class="rack-label">'+n+'</div>';
