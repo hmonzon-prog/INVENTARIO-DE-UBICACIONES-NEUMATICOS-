@@ -529,7 +529,15 @@ function renderMapa() {
     const occ = hasStock(nave, letra, n);
     const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
     const colors = getDotColors(s, occ);
-    return '<div class="rack-dot" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" style="background:'+colors.bg+';color:'+colors.fg+';border:2px solid '+colors.border+';">'+n+'</div>';
+    const pies = (typeof PIES_RACKS_CONFIG !== 'undefined' && PIES_RACKS_CONFIG[loc]) || 1;
+    let html = '<div class="rack-cell" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)">';
+    html += '<div class="rack-label">'+n+'</div>';
+    html += '<div class="rack-pies">';
+    for (let i = 0; i < pies; i++) {
+      html += '<div class="rack-dot-small" style="background:'+colors.bg+';border:1px solid '+colors.border+';"></div>';
+    }
+    html += '</div></div>';
+    return html;
   }
 
   function buildMotos() {
