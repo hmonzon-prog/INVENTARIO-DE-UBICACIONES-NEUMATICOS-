@@ -495,32 +495,31 @@ function renderMapa() {
     }
   }
 
-  function buildCalleCompleta(letras, nave) {
+  function buildBloqueF(nave) {
+    const nums = getNums(nave, 'F');
+    const evens = nums.filter(n => n%2===0).sort((a,b)=>b-a);
     let h = '<div class="pasillo-block-vertical">';
-    h += '<div class="pb-with-calle">';
-
-    // Primera calle (F) - solo pares
-    const numsF = getNums(nave, letras[0]);
-    const evensF = numsF.filter(n => n%2===0).sort((a,b)=>b-a);
+    h += '<div class="pb-header"><strong>F</strong></div>';
     h += '<div class="pb-col">';
-    evensF.forEach(n => { h += renderDot(nave, letras[0], n, 'left'); });
+    evens.forEach(n => { h += renderDot(nave, 'F', n, 'left'); });
+    h += '</div></div>';
+    return h;
+  }
+
+  function buildBloqueParImpar(letra, nave) {
+    const nums = getNums(nave, letra);
+    const evens = nums.filter(n => n%2===0).sort((a,b)=>b-a);
+    const odds = nums.filter(n => n%2===1).sort((a,b)=>b-a);
+    let h = '<div class="pasillo-block-vertical">';
+    h += '<div class="pb-header"><strong>'+sanitize(letra)+'</strong></div>';
+    h += '<div class="pb-with-calle">';
+    h += '<div class="pb-col">';
+    odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
     h += '</div>';
-
-    // Para cada calle restante (G, H, I, J)
-    for (let i = 1; i < letras.length; i++) {
-      const nums = getNums(nave, letras[i]);
-      const evens = nums.filter(n => n%2===0).sort((a,b)=>b-a);
-      const odds = nums.filter(n => n%2===1).sort((a,b)=>b-a);
-
-      h += '<div class="calle-line"></div>';
-      h += '<div class="pb-col">';
-      odds.forEach(n => { h += renderDot(nave, letras[i], n, 'right'); });
-      h += '</div>';
-      h += '<div class="pb-col">';
-      evens.forEach(n => { h += renderDot(nave, letras[i], n, 'left'); });
-      h += '</div>';
-    }
-
+    h += '<div class="calle-line"></div>';
+    h += '<div class="pb-col">';
+    evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
+    h += '</div>';
     h += '</div></div>';
     return h;
   }
@@ -667,7 +666,7 @@ function renderMapa() {
   const nave1Top = safeGetEl('nave1Top');
   const nave1Bottom = safeGetEl('nave1Bottom');
 
-  if (nave2Top) nave2Top.innerHTML = buildCalleCompleta(['F','G','H','I','J'], 2);
+  if (nave2Top) nave2Top.innerHTML = buildBloqueF(2) + ['G','H','I','J'].map(l => buildBloqueParImpar(l, 2)).join('');
   if (nave2Bottom) nave2Bottom.innerHTML = '';
   if (nave1Top) nave1Top.innerHTML = '';
   if (nave1Bottom) nave1Bottom.innerHTML = '';
