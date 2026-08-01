@@ -684,7 +684,7 @@ function renderMapa() {
   const nave1Bottom = safeGetEl('nave1Bottom');
 
   if (nave2Top) nave2Top.innerHTML = buildBloqueF(2) + ['G','H','I','J'].map(l => buildBloqueParImpar(l, 2)).join('');
-  if (nave2Bottom) nave2Bottom.innerHTML = buildBlock(2, 'A');
+  if (nave2Bottom) nave2Bottom.innerHTML = buildBlock(2, 'A') + '<div class="pasillo-line"></div>' + buildBlock(2, 'B');
   if (nave1Top) nave1Top.innerHTML = '';
   if (nave1Bottom) nave1Bottom.innerHTML = '';
 
