@@ -247,30 +247,59 @@ function mostrarLog() {
 
 function renderLogTabla(filtro) {
   const content = safeGetEl('logContent');
-  let html = '<input type="text" id="logFiltro" placeholder="Buscar ubicación..." value="'+sanitize(filtro)+'" oninput="renderLogTabla(this.value)" style="width:100%;padding:8px 12px;border:1px solid #bdbdbd;border-radius:6px;margin-bottom:12px;font-size:13px;box-sizing:border-box;">';
   const filtered = filtro ? changeLog.filter(e => e.ubicacion.toLowerCase().includes(filtro.toLowerCase())) : changeLog;
+  let html = '<div id="logFiltroWrap"><input type="text" id="logFiltro" placeholder="Buscar ubicación..." value="'+sanitize(filtro)+'" oninput="filtrarLog()" style="width:100%;padding:8px 12px;border:1px solid #bdbdbd;border-radius:6px;margin-bottom:12px;font-size:13px;box-sizing:border-box;"></div>';
+  html += '<div id="logTablaWrap">';
   if (!filtered.length) {
     html += '<p style="color:#757575;">No se encontraron registros.</p>';
-    content.innerHTML = html;
-    return;
+  } else {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html += '<thead><tr style="background:#e0e0e0;"><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Ubicación</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Acción</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Usuario</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Fecha</th><th style="padding:8px;text-align:center;border:1px solid #bdbdbd;">Eliminar</th></tr></thead>';
+    html += '<tbody>';
+    for (let i = changeLog.length - 1; i >= 0; i--) {
+      const e = changeLog[i];
+      if (filtro && !e.ubicacion.toLowerCase().includes(filtro.toLowerCase())) continue;
+      const color = e.accion === 'marcada' ? '#0f9d58' : '#ea4335';
+      html += '<tr>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;font-weight:700;">'+sanitize(e.ubicacion)+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;color:'+color+';font-weight:700;">'+sanitize(e.accion)+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;">'+sanitize(e.usuario)+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;">'+new Date(e.fecha).toLocaleString('es-AR')+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;text-align:center;"><button onclick="eliminarRegistro('+i+')" style="background:#e53935;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;">✕</button></td>';
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
   }
-  html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
-  html += '<thead><tr style="background:#e0e0e0;"><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Ubicación</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Acción</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Usuario</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Fecha</th><th style="padding:8px;text-align:center;border:1px solid #bdbdbd;">Eliminar</th></tr></thead>';
-  html += '<tbody>';
-  for (let i = changeLog.length - 1; i >= 0; i--) {
-    const e = changeLog[i];
-    if (filtro && !e.ubicacion.toLowerCase().includes(filtro.toLowerCase())) continue;
-    const color = e.accion === 'marcada' ? '#0f9d58' : '#ea4335';
-    html += '<tr>';
-    html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;font-weight:700;">'+sanitize(e.ubicacion)+'</td>';
-    html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;color:'+color+';font-weight:700;">'+sanitize(e.accion)+'</td>';
-    html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;">'+sanitize(e.usuario)+'</td>';
-    html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;">'+new Date(e.fecha).toLocaleString('es-AR')+'</td>';
-    html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;text-align:center;"><button onclick="eliminarRegistro('+i+')" style="background:#e53935;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;">✕</button></td>';
-    html += '</tr>';
-  }
-  html += '</tbody></table>';
+  html += '</div>';
   content.innerHTML = html;
+}
+
+function filtrarLog() {
+  const val = safeGetEl('logFiltro').value;
+  const wrap = safeGetEl('logTablaWrap');
+  const filtered = val ? changeLog.filter(e => e.ubicacion.toLowerCase().includes(val.toLowerCase())) : changeLog;
+  let html = '';
+  if (!filtered.length) {
+    html = '<p style="color:#757575;">No se encontraron registros.</p>';
+  } else {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html += '<thead><tr style="background:#e0e0e0;"><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Ubicación</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Acción</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Usuario</th><th style="padding:8px;text-align:left;border:1px solid #bdbdbd;">Fecha</th><th style="padding:8px;text-align:center;border:1px solid #bdbdbd;">Eliminar</th></tr></thead>';
+    html += '<tbody>';
+    for (let i = changeLog.length - 1; i >= 0; i--) {
+      const e = changeLog[i];
+      if (val && !e.ubicacion.toLowerCase().includes(val.toLowerCase())) continue;
+      const color = e.accion === 'marcada' ? '#0f9d58' : '#ea4335';
+      html += '<tr>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;font-weight:700;">'+sanitize(e.ubicacion)+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;color:'+color+';font-weight:700;">'+sanitize(e.accion)+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;">'+sanitize(e.usuario)+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;">'+new Date(e.fecha).toLocaleString('es-AR')+'</td>';
+      html += '<td style="padding:6px 8px;border:1px solid #e0e0e0;text-align:center;"><button onclick="eliminarRegistro('+i+')" style="background:#e53935;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;">✕</button></td>';
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+  }
+  wrap.innerHTML = html;
 }
 
 function eliminarRegistro(idx) {
@@ -278,7 +307,7 @@ function eliminarRegistro(idx) {
   changeLog.splice(idx, 1);
   saveData();
   const filtro = safeGetEl('logFiltro') ? safeGetEl('logFiltro').value : '';
-  renderLogTabla(filtro);
+  filtrarLog();
 }
 
 function cerrarLog() {
