@@ -517,6 +517,7 @@ function renderMapa() {
     odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
     h += '</div>';
     h += '<div class="pasillo-line"></div>';
+    h += '<div class="calle-line"></div>';
     h += '<div class="pb-col">';
     evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
     h += '</div>';
