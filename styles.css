@@ -65,7 +65,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #2c3e50;
 .pb-col { display: flex; flex-direction: column; gap: 1px; align-items: center; }
 .calle-line { width: 2px; background: #333; margin: 0; align-self: stretch; }
 .pasillo-line { width: 12px; background: #bbb; margin: 0 1px; align-self: stretch; }
-.rack-cell { display: flex; flex-direction: row; align-items: center; cursor: pointer; margin: 0; gap: 0; border-left: 1px solid #333; }
+.rack-cell { display: flex; flex-direction: row; align-items: center; cursor: pointer; margin: 0; gap: 1px; }
 .rack-label { font-size: 8px; color: #d32f2f; font-weight: 700; width: 14px; text-align: center; }
 .rack-pies { display: flex; flex-direction: row; gap: 1px; }
 .rack-dot-small { width: 10px; height: 12px; border-radius: 1px; }

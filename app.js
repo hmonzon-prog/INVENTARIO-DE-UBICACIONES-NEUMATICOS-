@@ -498,10 +498,17 @@ function renderMapa() {
   function buildBloqueF(nave) {
     const nums = getNums(nave, 'F');
     const evens = nums.filter(n => n%2===0).sort((a,b)=>b-a);
+    const odds = nums.filter(n => n%2===1).sort((a,b)=>b-a);
     let h = '<div class="pasillo-block-vertical">';
     h += '<div class="pb-header"><strong>F</strong></div>';
+    h += '<div class="pb-with-calle">';
+    h += '<div class="pb-col">';
+    odds.forEach(n => { h += renderDot(nave, 'F', n, 'right'); });
+    h += '</div>';
+    h += '<div class="calle-line"></div>';
     h += '<div class="pb-col">';
     evens.forEach(n => { h += renderDot(nave, 'F', n, 'left'); });
+    h += '</div>';
     h += '</div></div>';
     return h;
   }
