@@ -495,6 +495,25 @@ function renderMapa() {
     }
   }
 
+  function buildCalle(letraPar, letraImpar, nave) {
+    const numsPar = getNums(nave, letraPar);
+    const numsImpar = getNums(nave, letraImpar);
+    const evens = numsPar.filter(n => n%2===0).sort((a,b)=>b-a);
+    const odds = numsImpar.filter(n => n%2===1).sort((a,b)=>b-a);
+
+    let h = '<div class="pasillo-block-vertical">';
+    h += '<div class="pb-with-calle">';
+    h += '<div class="pb-col">';
+    evens.forEach(n => { h += renderDot(nave, letraPar, n, 'left'); });
+    h += '</div>';
+    h += '<div class="calle-line"></div>';
+    h += '<div class="pb-col">';
+    odds.forEach(n => { h += renderDot(nave, letraImpar, n, 'right'); });
+    h += '</div>';
+    h += '</div></div>';
+    return h;
+  }
+
   function buildBlock(nave, letra) {
     const zona = zonas.find(z => z.name === 'N'+nave+'-'+letra);
     if (!zona) return '';
@@ -637,7 +656,7 @@ function renderMapa() {
   const nave1Top = safeGetEl('nave1Top');
   const nave1Bottom = safeGetEl('nave1Bottom');
 
-  if (nave2Top) nave2Top.innerHTML = buildBlock(2, 'F');
+  if (nave2Top) nave2Top.innerHTML = buildCalle('F', 'G', 2);
   if (nave2Bottom) nave2Bottom.innerHTML = '';
   if (nave1Top) nave1Top.innerHTML = '';
   if (nave1Bottom) nave1Bottom.innerHTML = '';
