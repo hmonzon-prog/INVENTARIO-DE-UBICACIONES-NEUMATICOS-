@@ -674,7 +674,7 @@ function renderMapa() {
   const nave1Bottom = safeGetEl('nave1Bottom');
 
   if (nave2Top) nave2Top.innerHTML = buildBloqueF(2) + ['G','H','I','J'].map(l => buildBloqueParImpar(l, 2)).join('');
-  if (nave2Bottom) nave2Bottom.innerHTML = '';
+  if (nave2Bottom) nave2Bottom.innerHTML = buildBlock(2, 'A');
   if (nave1Top) nave1Top.innerHTML = '';
   if (nave1Bottom) nave1Bottom.innerHTML = '';
 

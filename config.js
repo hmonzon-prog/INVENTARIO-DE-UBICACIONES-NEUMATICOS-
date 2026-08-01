@@ -13,7 +13,7 @@ var ZONAS_CONFIG = [
   {name:'N1-C', total:12},
   {name:'N1-D', total:6},
   {name:'N1-E', total:5},
-  {name:'N2-A', total:12},
+  {name:'N2-A', total:5},
   {name:'N2-B', total:16},
   {name:'N2-C', total:15},
   {name:'N2-D', total:17},
