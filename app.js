@@ -194,6 +194,15 @@ async function initFromFirestore() {
 }
 let changeLog = [];
 
+function getLastMark(key) {
+  for (let i = changeLog.length - 1; i >= 0; i--) {
+    if (changeLog[i].ubicacion === key && changeLog[i].accion === 'marcada') {
+      return changeLog[i];
+    }
+  }
+  return null;
+}
+
 function toggleLoc(key) {
   try {
     if (!(key in invData)) return;
@@ -530,7 +539,11 @@ function renderMapa() {
     const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
     const colors = getDotColors(s, occ);
     const pies = (typeof PIES_RACKS_CONFIG !== 'undefined' && PIES_RACKS_CONFIG[loc]) || 1;
-    let html = '<div class="rack-cell" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)">';
+    const lastMark = getLastMark(loc);
+    const tooltip = lastMark
+      ? 'Inventariado por: ' + lastMark.usuario + ' | Fecha: ' + new Date(lastMark.fecha).toLocaleString('es-AR')
+      : 'Sin inventariar';
+    let html = '<div class="rack-cell" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" title="'+tooltip+'">';
     html += '<div class="rack-label">'+n+'</div>';
     html += '<div class="rack-pies">';
     for (let i = 0; i < pies; i++) {
