@@ -520,11 +520,9 @@ function renderMapa() {
     } else {
       h += '<div class="pb-two-col">';
       h += '<div class="pb-col">';
-      h += '<span class="pb-col-label">I</span>';
       odds.forEach(n => { h += renderDot(nave, letra, n); });
       h += '</div>';
       h += '<div class="pb-col">';
-      h += '<span class="pb-col-label">P</span>';
       evens.forEach(n => { h += renderDot(nave, letra, n); });
       h += '</div>';
       h += '</div>';
@@ -533,7 +531,34 @@ function renderMapa() {
     return h;
   }
 
-  function renderDot(nave, letra, n) {
+  function buildPairFG() {
+    const zonaF = zonas.find(z => z.name === 'N2-F');
+    const zonaG = zonas.find(z => z.name === 'N2-G');
+    const numsF = getNums(2, 'F');
+    const numsG = getNums(2, 'G');
+    const evens = numsF.filter(n => n%2===0).sort((a,b)=>b-a);
+    const odds = numsG.filter(n => n%2===1).sort((a,b)=>b-a);
+
+    let h = '<div class="pair-fg">';
+    h += '<div class="pair-fg-header"><strong>F</strong> — <strong>G</strong></div>';
+    h += '<div class="pair-fg-row">';
+    const maxLen = Math.max(evens.length, odds.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < evens.length) {
+        h += renderDot(2, 'F', evens[i], 'left');
+      }
+      if (i === 0) {
+        h += '<div class="calle-line"></div>';
+      }
+      if (i < odds.length) {
+        h += renderDot(2, 'G', odds[i], 'right');
+      }
+    }
+    h += '</div></div>';
+    return h;
+  }
+
+  function renderDot(nave, letra, n, labelSide) {
     const s = getStatus(nave, letra, n);
     const occ = hasStock(nave, letra, n);
     const loc = 'N'+nave+'-'+letra+('0'+n).slice(-2);
@@ -544,12 +569,18 @@ function renderMapa() {
       ? 'Inventariado por: ' + lastMark.usuario + ' | Fecha: ' + new Date(lastMark.fecha).toLocaleString('es-AR')
       : 'Sin inventariar';
     let html = '<div class="rack-cell" data-loc="'+loc+'" onclick="toggleLoc(this.dataset.loc)" title="'+tooltip+'">';
-    html += '<div class="rack-label">'+n+'</div>';
+    if (labelSide === 'left') {
+      html += '<div class="rack-label">'+n+'</div>';
+    }
     html += '<div class="rack-pies">';
     for (let i = 0; i < pies; i++) {
       html += '<div class="rack-dot-small" style="background:'+colors.bg+';border:1px solid '+colors.border+';"></div>';
     }
-    html += '</div></div>';
+    html += '</div>';
+    if (labelSide === 'right') {
+      html += '<div class="rack-label">'+n+'</div>';
+    }
+    html += '</div>';
     return html;
   }
 
@@ -576,7 +607,7 @@ function renderMapa() {
 
   html += '<div class="nave-section">';
   html += '<div class="nave-section-title" style="background:#f3e5f5;color:#7b1fa2;">Nave 2</div>';
-  html += '<div class="nave-row">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '<div class="nave-row">' + buildPairFG() + buildBlock(2, 'H') + buildBlock(2, 'I') + buildBlock(2, 'J') + '</div>';
   html += buildMotos();
   html += '<div class="nave-row">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
   html += '</div>';
