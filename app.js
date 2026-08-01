@@ -204,10 +204,21 @@ function getLastMark(key) {
 }
 
 function reiniciarInventario() {
-  if (!confirm('¿Estás seguro? Se borrarán todos los datos de inventario.')) return;
+  if (!confirm('¿Estás seguro? Se borrarán todos los datos de inventario del servidor y del navegador.')) return;
   localStorage.removeItem('obInvData');
   localStorage.removeItem('obInvLog');
-  location.reload();
+  if (db) {
+    db.collection('inventario').doc('ubicaciones').set({ data: invData }).then(() => {
+      db.collection('inventario').doc('log').set({ data: [] });
+    }).then(() => {
+      location.reload();
+    }).catch(e => {
+      console.error('Error limpiando Firestore:', e);
+      location.reload();
+    });
+  } else {
+    location.reload();
+  }
 }
 
 function toggleLoc(key) {
