@@ -504,7 +504,7 @@ function renderMapa() {
     const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
     const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
     const correlative = nave === 1 && letra === 'E';
-    const onlyEvens = nave === 2 && letra === 'F';
+    const onlyEvens = (nave === 2 && letra === 'F') || (nave === 2 && letra === 'J');
 
     let h = '<div class="pasillo-block-vertical">';
     h += '<div class="pb-header">';
