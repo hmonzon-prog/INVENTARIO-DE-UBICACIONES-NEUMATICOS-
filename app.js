@@ -506,8 +506,8 @@ function calcOcupacion() {
 function renderMapa() {
   function getDotColors(invStatus, hasStockFlag) {
     if (currentView === 'inv') {
-      if (invStatus === 0) return {bg:'#0f9d58', fg:'#fff', border:'#0f9d58'};
-      if (invStatus === 1) return {bg:'#ea4335', fg:'#fff', border:'#ea4335'};
+      if (invStatus === 1) return {bg:'#0f9d58', fg:'#fff', border:'#0f9d58'};
+      if (invStatus === 0) return {bg:'#ea4335', fg:'#fff', border:'#ea4335'};
       return {bg:'#cfd8dc', fg:'#78909c', border:'#cfd8dc'};
     } else {
       if (hasStockFlag) return {bg:'#1565c0', fg:'#fff', border:'#0d47a1'};
