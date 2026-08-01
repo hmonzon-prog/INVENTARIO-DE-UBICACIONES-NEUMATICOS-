@@ -618,18 +618,29 @@ function renderMapa() {
 
   html += '<div class="nave-section">';
   html += '<div class="nave-section-title" style="background:#f3e5f5;color:#7b1fa2;">Nave 2</div>';
-  html += '<div class="nave-row">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '<div class="nave-row" id="nave2Top"></div>';
   html += buildMotos();
-  html += '<div class="nave-row">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
+  html += '<div class="nave-row" id="nave2Bottom"></div>';
   html += '</div>';
 
   html += '<div class="nave-section">';
   html += '<div class="nave-section-title" style="background:#e0f2f1;color:#00796b;">Nave 1</div>';
-  html += '<div class="nave-row">' + ['A','B','C','D'].map(l => buildBlock(1, l)).join('') + '</div>';
-  html += '<div class="nave-row" style="justify-content:center;">' + buildBlock(1, 'E') + '</div>';
+  html += '<div class="nave-row" id="nave1Top"></div>';
+  html += '<div class="nave-row" id="nave1Bottom" style="justify-content:center;"></div>';
   html += '</div>';
 
   safeHtml(safeGetEl('mapaDeposito'), html);
+
+  // Agregar calles una por una
+  const nave2Top = safeGetEl('nave2Top');
+  const nave2Bottom = safeGetEl('nave2Bottom');
+  const nave1Top = safeGetEl('nave1Top');
+  const nave1Bottom = safeGetEl('nave1Bottom');
+
+  if (nave2Top) nave2Top.innerHTML = buildBlock(2, 'F');
+  if (nave2Bottom) nave2Bottom.innerHTML = '';
+  if (nave1Top) nave1Top.innerHTML = '';
+  if (nave1Bottom) nave1Bottom.innerHTML = '';
 
   const legendHtml = currentView === 'inv'
     ? '<span class="legend-item"><span class="legend-dot" style="background:#0f9d58;"></span> Inventariado</span><span class="legend-item"><span class="legend-dot" style="background:#ea4335;"></span> Pendiente</span><span class="legend-item"><span class="legend-dot" style="background:#cfd8dc;"></span> Vacío</span>'
