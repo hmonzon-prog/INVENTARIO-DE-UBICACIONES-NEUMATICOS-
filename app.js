@@ -504,6 +504,7 @@ function renderMapa() {
     const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
     const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
     const correlative = nave === 1 && letra === 'E';
+    const onlyEvens = nave === 2 && letra === 'F';
 
     let h = '<div class="pasillo-block-vertical">';
     h += '<div class="pb-header">';
@@ -516,6 +517,10 @@ function renderMapa() {
       [...nums].sort((a,b)=>b-a).forEach(n => {
         h += renderDot(nave, letra, n, 'left');
       });
+      h += '</div>';
+    } else if (onlyEvens) {
+      h += '<div class="pb-col">';
+      evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
       h += '</div>';
     } else {
       h += '<div class="pb-with-calle">';
@@ -614,7 +619,7 @@ function renderMapa() {
 
   html += '<div class="nave-section">';
   html += '<div class="nave-section-title" style="background:#f3e5f5;color:#7b1fa2;">Nave 2</div>';
-  html += '<div class="nave-row">' + buildPairFG() + buildBlock(2, 'H') + buildBlock(2, 'I') + buildBlock(2, 'J') + '</div>';
+  html += '<div class="nave-row">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
   html += buildMotos();
   html += '<div class="nave-row">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
   html += '</div>';
