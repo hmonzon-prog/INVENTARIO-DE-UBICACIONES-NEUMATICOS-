@@ -4,7 +4,7 @@ var USUARIOS_CONFIG = [
   {user: 'bruno', pass: '5164', nombre: 'Bruno Ayala'},
   {user: 'juan', pass: '8037', nombre: 'Juan'},
   {user: 'flor', pass: '2549', nombre: 'Flor'},
-  {user: 'hernan', pass: '6385', nombre: 'Hernan'}
+  {user: 'hernan', pass: '6385', nombre: 'Hernan', role: 'admin'}
 ];
 
 var PIES_RACKS_CONFIG = {

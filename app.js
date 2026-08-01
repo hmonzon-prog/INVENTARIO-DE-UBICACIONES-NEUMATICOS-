@@ -39,6 +39,8 @@ function showApp() {
   safeGetEl('loginScreen').style.display = 'none';
   safeGetEl('appMain').style.display = 'block';
   safeText(safeGetEl('currentUser'), '👤 ' + currentUser.nombre);
+  const isAdmin = currentUser.role === 'admin';
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
   renderMapa();
   initFromFirestore();
 }
