@@ -490,8 +490,8 @@ function renderMapa() {
     const zona = zonas.find(z => z.name === 'N'+nave+'-'+letra);
     if (!zona) return '';
     const nums = getNums(nave, letra);
-    const odds = nums.filter(n => n%2===1).sort((a,b)=>a-b);
-    const evens = nums.filter(n => n%2===0).sort((a,b)=>a-b);
+    const odds = nums.filter(n => n%2===1).sort((a,b)=>b-a);
+    const evens = nums.filter(n => n%2===0).sort((a,b)=>b-a);
     const pctInv = zona.total > 0 ? safePct(zona.inv, zona.total).toFixed(0) : 0;
     const pctOcc = zona.total > 0 ? safePct(zona.occ||0, zona.total).toFixed(0) : 0;
     const correlative = nave === 1 && letra === 'E';
@@ -504,7 +504,7 @@ function renderMapa() {
 
     if (correlative) {
       h += '<div class="pb-col">';
-      [...nums].sort((a,b)=>a-b).forEach(n => {
+      [...nums].sort((a,b)=>b-a).forEach(n => {
         h += renderDot(nave, letra, n);
       });
       h += '</div>';
