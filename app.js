@@ -656,7 +656,7 @@ function renderMapa() {
   const nave1Top = safeGetEl('nave1Top');
   const nave1Bottom = safeGetEl('nave1Bottom');
 
-  if (nave2Top) nave2Top.innerHTML = buildCalle('F', 'G', 2);
+  if (nave2Top) nave2Top.innerHTML = buildBlock(2, 'F') + buildBlock(2, 'G');
   if (nave2Bottom) nave2Bottom.innerHTML = '';
   if (nave1Top) nave1Top.innerHTML = '';
   if (nave1Bottom) nave1Bottom.innerHTML = '';
