@@ -685,7 +685,7 @@ function renderMapa() {
   if (nave2Top) nave2Top.innerHTML = buildBloqueF(2) + ['G','H','I','J'].map(l => buildBloqueParImpar(l, 2)).join('');
   if (nave2Bottom) nave2Bottom.innerHTML = buildBlock(2, 'A') + buildBlock(2, 'B') + buildBlock(2, 'C') + buildBlock(2, 'D') + buildBlock(2, 'E');
   if (nave1Top) nave1Top.innerHTML = '';
-  if (nave1Bottom) nave1Bottom.innerHTML = '';
+  if (nave1Bottom) nave1Bottom.innerHTML = buildBlock(1, 'A') + buildBlock(1, 'B') + buildBlock(1, 'C') + buildBlock(1, 'D') + buildBlock(1, 'E');
 
   const legendHtml = currentView === 'inv'
     ? '<span class="legend-item"><span class="legend-dot" style="background:#0f9d58;"></span> Inventariado</span><span class="legend-item"><span class="legend-dot" style="background:#ea4335;"></span> Pendiente</span><span class="legend-item"><span class="legend-dot" style="background:#cfd8dc;"></span> Vacío</span>'
