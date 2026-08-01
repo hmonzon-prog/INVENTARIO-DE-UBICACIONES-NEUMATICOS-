@@ -59,7 +59,17 @@ function checkSession() {
   safeGetEl('appMain').style.display = 'none';
 }
 
-const zonas = ZONAS_CONFIG.map(z => ({...z, inv: 0, occ: 0}));
+const zonas = (function() {
+  const map = {};
+  for (const k in LOCACIONES_CONFIG) {
+    const match = k.match(/^(N\d-[A-Z])(\d+)$/);
+    if (!match) continue;
+    const name = match[1];
+    if (!map[name]) map[name] = {name, total: 0, inv: 0, occ: 0};
+    map[name].total++;
+  }
+  return Object.values(map);
+})();
 const invData = {...LOCACIONES_CONFIG};
 
 let stockData = {};

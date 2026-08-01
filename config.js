@@ -7,26 +7,6 @@ var USUARIOS_CONFIG = [
   {user: 'hernan', pass: '6385', nombre: 'Hernan'}
 ];
 
-var ZONAS_CONFIG = [
-  {name:'N1-A', total:6},
-  {name:'N1-B', total:12},
-  {name:'N1-C', total:12},
-  {name:'N1-D', total:6},
-  {name:'N1-E', total:5},
-  {name:'N2-A', total:13},
-  {name:'N2-B', total:8},
-  {name:'N2-B', total:16},
-  {name:'N2-C', total:15},
-  {name:'N2-D', total:17},
-  {name:'N2-E', total:16},
-  {name:'N2-F', total:8},
-  {name:'N2-G', total:16},
-  {name:'N2-H', total:16},
-  {name:'N2-I', total:16},
-  {name:'N2-J', total:16},
-  {name:'N2-M', total:5}
-];
-
 var PIES_RACKS_CONFIG = {
   'N1-A02':5,'N1-A04':5,'N1-A06':5,'N1-A08':5,'N1-A10':5,'N1-A12':5,
   'N1-B01':5,'N1-B02':5,'N1-B03':5,'N1-B04':5,'N1-B05':5,'N1-B06':5,'N1-B07':5,'N1-B08':5,'N1-B09':5,'N1-B10':5,'N1-B11':5,'N1-B12':5,
