@@ -203,6 +203,13 @@ function getLastMark(key) {
   return null;
 }
 
+function reiniciarInventario() {
+  if (!confirm('¿Estás seguro? Se borrarán todos los datos de inventario.')) return;
+  localStorage.removeItem('obInvData');
+  localStorage.removeItem('obInvLog');
+  location.reload();
+}
+
 function toggleLoc(key) {
   try {
     if (!(key in invData)) return;
