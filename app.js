@@ -514,47 +514,21 @@ function renderMapa() {
     if (correlative) {
       h += '<div class="pb-col">';
       [...nums].sort((a,b)=>b-a).forEach(n => {
-        h += renderDot(nave, letra, n);
+        h += renderDot(nave, letra, n, 'left');
       });
       h += '</div>';
     } else {
-      h += '<div class="pb-two-col">';
+      h += '<div class="pb-with-calle">';
       h += '<div class="pb-col">';
-      odds.forEach(n => { h += renderDot(nave, letra, n); });
+      evens.forEach(n => { h += renderDot(nave, letra, n, 'left'); });
       h += '</div>';
+      h += '<div class="calle-line"></div>';
       h += '<div class="pb-col">';
-      evens.forEach(n => { h += renderDot(nave, letra, n); });
+      odds.forEach(n => { h += renderDot(nave, letra, n, 'right'); });
       h += '</div>';
       h += '</div>';
     }
     h += '</div>';
-    return h;
-  }
-
-  function buildPairFG() {
-    const zonaF = zonas.find(z => z.name === 'N2-F');
-    const zonaG = zonas.find(z => z.name === 'N2-G');
-    const numsF = getNums(2, 'F');
-    const numsG = getNums(2, 'G');
-    const evens = numsF.filter(n => n%2===0).sort((a,b)=>b-a);
-    const odds = numsG.filter(n => n%2===1).sort((a,b)=>b-a);
-
-    let h = '<div class="pair-fg">';
-    h += '<div class="pair-fg-header"><strong>F</strong> — <strong>G</strong></div>';
-    h += '<div class="pair-fg-row">';
-    const maxLen = Math.max(evens.length, odds.length);
-    for (let i = 0; i < maxLen; i++) {
-      if (i < evens.length) {
-        h += renderDot(2, 'F', evens[i], 'left');
-      }
-      if (i === 0) {
-        h += '<div class="calle-line"></div>';
-      }
-      if (i < odds.length) {
-        h += renderDot(2, 'G', odds[i], 'right');
-      }
-    }
-    h += '</div></div>';
     return h;
   }
 
@@ -607,7 +581,7 @@ function renderMapa() {
 
   html += '<div class="nave-section">';
   html += '<div class="nave-section-title" style="background:#f3e5f5;color:#7b1fa2;">Nave 2</div>';
-  html += '<div class="nave-row">' + buildPairFG() + buildBlock(2, 'H') + buildBlock(2, 'I') + buildBlock(2, 'J') + '</div>';
+  html += '<div class="nave-row">' + ['F','G','H','I','J'].map(l => buildBlock(2, l)).join('') + '</div>';
   html += buildMotos();
   html += '<div class="nave-row">' + ['A','B','C','D','E'].map(l => buildBlock(2, l)).join('') + '</div>';
   html += '</div>';
